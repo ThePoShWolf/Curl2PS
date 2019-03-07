@@ -12,6 +12,11 @@ Function ConvertTo-IRM {
     $url = $Matches[0]
 
     $workingStr = $CurlString -replace '^curl\s+','' -replace $url,''
+
+    If($url -match 'https?:\/\/(?<up>[^@]+)@'){
+        $encodedAuth = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($Matches.up))
+        $headers['Authorization'] = "Basic $encodedAuth"
+    }
     # Match the parameter name
     While ($workingStr -match '^\-{1,2}(?<param>[^\s]+)'){
         $parameterName = $Matches.param
@@ -42,6 +47,8 @@ Function ConvertTo-IRM {
                 "Verbose"
             }
             {'d','data'} {
+                $parameterValue = $parameterValue -replace "^['`"]",''
+                $parameterValue = $parameterValue -replace "['`"]$",''
                 $body = $parameterValue
             }
             default {
@@ -60,7 +67,7 @@ $CurlString = @"
 curl -v -X PATCH https://api.airtable.com/v0/appBLvHFF78kERCvW/Payees/recMvdJuoL6ivDA9I -H "Authorization: Bearer YOUR_API_KEY" -H "Content-Type: application/json" -d '{"fields": {"Name": "Eugene Water and Electric Board"}}'
 "@
 
-curl --request GET "https://ncg1in-8d1rag:5nuauzj5pkfftlz3fmyksmyhat6j35kf@api.sherpadesk.com/tickets?status=open,onhold&role=user&limit=6&format=json" \  --data ""
+$CurlString = 'curl --request GET "https://ncg1in-8d1rag:5nuauzj5pkfftlz3fmyksmyhat6j35kf@api.sherpadesk.com/tickets?status=open,onhold&role=user&limit=6&format=json" \  --data ""'
 
 $url = "https://ncg1in-8d1rag:5nuauzj5pkfftlz3fmyksmyhat6j35kf@api.sherpadesk.com/tickets?status=open,onhold&role=user&limit=6&format=json"
 $url -match 'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)'
