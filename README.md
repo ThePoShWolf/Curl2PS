@@ -17,7 +17,7 @@ Invoke-RestMethod -Method GET -Headers ('{"Content-Type":"application/json","X-A
 Or
 
 ```PowerShell
-PS> ConvertTo-IRM -CurlString 'curl --request GET "https://ncg1in-8d1rag:5nuauzj5pkfftlz3fmyksmyhat6j35kf@api.sherpadesk.com/tickets?status=open,onhold&role=user&limit=6&format=json" \  --data ""'
+PS> ConvertTo-IRM -CurlString 'curl --request GET "https://ncg1in-8d1rag:5nuauzj5pkfftlz3fmyksmyhat6j35kf@api.sherpadesk.com/tickets?status=open,onhold&role=user&limit=6&format=json"  --data ""'
 
-Invoke-RestMethod -Method GET  \ -Body "" -Headers ('{"Authorization":"Basic bmNnMWluLThkMXJhZzo1bnVhdXpqNXBrZmZ0bHozZm15a3NteWhhdDZqMzVrZg=="}' | ConvertFrom-Json)
+Invoke-RestMethod -Method GET -Body "" -Headers ('{"Authorization":"Basic bmNnMWluLThkMXJhZzo1bnVhdXpqNXBrZmZ0bHozZm15a3NteWhhdDZqMzVrZg=="}' | ConvertFrom-Json)
 ```
