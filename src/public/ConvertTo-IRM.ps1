@@ -1,4 +1,18 @@
 Function ConvertTo-IRM {
+    <#
+    .SYNOPSIS
+        Converts a CURL command to a Invoke-RestMethod command
+    .DESCRIPTION
+        
+    .EXAMPLE
+        
+    .INPUTS
+        Inputs (if any)
+    .OUTPUTS
+        Output (if any)
+    .NOTES
+        v:0.2
+    #>
     param (
         [ValidateScript({$_.ToLower() -match '^curl '})]
         [string]$CurlString
@@ -10,7 +24,7 @@ Function ConvertTo-IRM {
     # Match the url
     # regex from: https://stackoverflow.com/questions/3809401/what-is-a-good-regular-expression-to-match-a-url
     # I added a comma in the case of multiple parameter values in uri.
-    $CurlString -match 'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=,]*)'
+    $Null = $CurlString -match '^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=\/]{2,256}(\.[a-z]{2,6}\b)|([-a-zA-Z0-9@:%_\+.~#?&\/\/=,]*)'
     $url = $Matches[0]
 
     $escapedUrl = [regex]::Escape($url)
@@ -64,3 +78,9 @@ Function ConvertTo-IRM {
     $outString += " -Headers ('$($headers | ConvertTo-Json -Compress)' | ConvertFrom-Json)"
     $outString
 }
+
+$CurlCommand = @"
+curl -X GET https://PlopServer/identity/api/tenants/Woo/subtenants -H 'Accept: application/json' -H 'Authorization: Bearer {{token}}'
+"@
+
+ConvertTo-IRM -CurlString $CurlCommand
