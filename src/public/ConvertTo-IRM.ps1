@@ -78,9 +78,3 @@ Function ConvertTo-IRM {
     $outString += " -Headers ('$($headers | ConvertTo-Json -Compress)' | ConvertFrom-Json)"
     $outString
 }
-
-$CurlCommand = @"
-curl -X GET https://PlopServer/identity/api/tenants/Woo/subtenants -H 'Accept: application/json' -H 'Authorization: Bearer {{token}}'
-"@
-
-ConvertTo-IRM -CurlString $CurlCommand
