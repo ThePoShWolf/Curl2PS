@@ -24,7 +24,7 @@ Function ConvertTo-IRM {
     # Match the url
     # regex from: https://stackoverflow.com/questions/3809401/what-is-a-good-regular-expression-to-match-a-url
     # I added a comma in the case of multiple parameter values in uri.
-    $Null = $CurlString -match '^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=\/]{2,256}(\.[a-z]{2,6}\b)|([-a-zA-Z0-9@:%_\+.~#?&\/\/=,]*)'
+    $Null = $CurlString -match 'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=\/]{2,256}(\.[a-z]{2,6}\b)|([-a-zA-Z0-9@:%_\+.~#?&\/\/=,]*)'
     $url = $Matches[0]
 
     $escapedUrl = [regex]::Escape($url)
