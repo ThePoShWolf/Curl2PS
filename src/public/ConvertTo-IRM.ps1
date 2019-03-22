@@ -43,8 +43,8 @@ Function ConvertTo-IRM {
                 #$parameterValue = $parameterValue -replace "^['`"]",''
                 #$parameterValue = $parameterValue -replace "['`"]$",''
                 #$split = $parameterValue.Split(':')
-                $split = $Matches.paramValue.Split(':')
-                $headers[($split[0].Trim())] = ($split[1].Trim())
+                $split = ($Matches.paramValue.Split(':') -replace '\\"','"')
+                $headers[($split[0].Trim())] = (($split[1..$($split.count)] -join ':').Trim())
             }
             {'X','request' -contains $_} {
                 $outString += " -Method $($matches.paramValueQuotes.Trim())"
