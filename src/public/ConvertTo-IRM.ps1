@@ -21,6 +21,9 @@ Function ConvertTo-IRM {
         $headers['Authorization'] = "Basic $encodedAuth"
         $url = $url -replace "$($Matches.up)@",''
     }
+
+    $outString += " -Uri $url"
+
     # Match the parameter name
     While ($workingStr -match '^\-{1,2}(?<param>[^\s]+)'){
         $parameterName = $Matches.param
