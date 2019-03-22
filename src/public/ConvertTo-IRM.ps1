@@ -30,9 +30,9 @@ Function ConvertTo-IRM {
         #$parameterLength = $Matches[0].Length
         
         # Match parameter value
-        # Don't match quotes
+        # Don't match quotes except for excaped quotes: \"
         $escapedParamName = [regex]::Escape($parameterName)
-        $workingStr -match "$escapedParamName (?<paramValueQuotes>`'(?<paramValue>[^']+)`'|`"(?<paramValue>[^`"]+)`"|(?<paramValue>[^\s]+))" | Out-Null
+        $workingStr -match "$escapedParamName (?<paramValueQuotes>`'(?<paramValue>[^']+)`'|`"(?<paramValue>((\\`")|[^`"])+)`"|(?<paramValue>[^\s]+))" | Out-Null
 
         #$parameterValue = $workingStr.Substring(0,$index)
         #$parameterValue = $parameterValue.Substring($parameterLength).Trim()
@@ -53,7 +53,7 @@ Function ConvertTo-IRM {
                 $outString += " -Verbose"
             }
             {'d','data' -contains $_} {
-                $outString += " -Body $($matches.paramValueQuotes.Trim())"
+                $outString += (" -Body '$($matches.paramValue.Trim())'" -replace '\\"','"')
             }
             default {
                 "unknown: $($matches[0])"
