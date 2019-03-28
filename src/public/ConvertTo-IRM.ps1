@@ -1,4 +1,18 @@
 Function ConvertTo-IRM {
+    <#
+    .SYNOPSIS
+        Converts a CURL command to a Invoke-RestMethod command
+    .DESCRIPTION
+        
+    .EXAMPLE
+        
+    .INPUTS
+        Inputs (if any)
+    .OUTPUTS
+        Output (if any)
+    .NOTES
+        v:0.2
+    #>
     param (
         [ValidateScript({$_.ToLower() -match '^curl '})]
         [string]$CurlString
@@ -12,6 +26,10 @@ Function ConvertTo-IRM {
     # I added a comma in the case of multiple parameter values in uri.
     $CurlString -match 'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=,]*)' | Out-Null
     $url = $Matches[0]
+
+    ## Most of the blow part is not needed anymore when using Get-URLData
+    ## Currently, this is not implemented. It is just so you can see, how this works ;)
+    $UrlData = Get-URLData -Url $CurlString # Will automatically discard if 'curl' is in front of the URL
 
     # Removes curl from the start
     # Removes the url
