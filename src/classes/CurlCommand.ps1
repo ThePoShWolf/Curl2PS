@@ -12,7 +12,7 @@ Class CurlCommand {
         $this.RawCommand = $curlString
         $tmpurl = [url]::new($curlString)
         if ($tmpurl){
-            $this.URL = $tmpurl.FullUrl
+            $this.URL = $tmpurl
         } else {
             # No URL present, error
         }
