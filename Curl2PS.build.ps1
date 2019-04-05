@@ -46,7 +46,7 @@ task ModuleBuild Clean, DocBuild, {
 }
 
 task Test ModuleBuild, {
-    Invoke-Pester $testPath
+    #Invoke-Pester $testPath
 }
 
 task Publish Test, {
