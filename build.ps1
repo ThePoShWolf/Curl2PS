@@ -11,4 +11,4 @@ Foreach ($Module in $DependentModules){
     Import-Module $module -ErrorAction Stop
 }
 # Builds the module by invoking InvokeBuild
-Invoke-Build "$PSScriptRoot\PSSherpaDesk.build.ps1" -Task $Task
+Invoke-Build "$PSScriptRoot\Curl2PS.build.ps1" -Task $Task
