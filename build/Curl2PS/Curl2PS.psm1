@@ -48,14 +48,18 @@ Class CurlCommand {
         $this.RawCommand = $curlString
         # Set the default method in case one isn't set later
         $this.Method = 'Get'
+        
         $tmpurl = [url]::new($curlString)
         if ($tmpurl){
             $this.URL = $tmpurl
         } else {
             # No URL present, error
         }
+
         if ($tmpurl.FullUrl -match 'https?:\/\/(?<up>[^@]+)@'){
             $encodedAuth = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($Matches.up))
+            $urlNoAuth = $tmpurl.FullUrl -replace "$($matches.up)@",''
+            $tmpurl = [url]::new($urlNoAuth)
             $this.Headers['Authorization'] = "Basic $encodedAuth"
         }
 
