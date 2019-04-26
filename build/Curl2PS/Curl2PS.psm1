@@ -59,7 +59,7 @@ Class CurlCommand {
         if ($tmpurl.FullUrl -match 'https?:\/\/(?<up>[^@]+)@'){
             $encodedAuth = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($Matches.up))
             $urlNoAuth = $tmpurl.FullUrl -replace "$($matches.up)@",''
-            $tmpurl = [url]::new($urlNoAuth)
+            $this.URL = [url]::new($urlNoAuth)
             $this.Headers['Authorization'] = "Basic $encodedAuth"
         }
 
