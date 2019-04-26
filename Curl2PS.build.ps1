@@ -22,13 +22,15 @@ task DocBuild {
 
 task ModuleBuild Clean, DocBuild, {
     $pubFiles = Get-ChildItem "$srcPath\public" -Filter *.ps1 -File
-    #$privFiles = Get-ChildItem "$srcPath\private" -Filter *.ps1 -File
+    $privFiles = Get-ChildItem "$srcPath\private" -Filter *.ps1 -File
     $classFiles = Get-ChildItem "$srcPath\classes" -Filter *.ps1 -File
     If(-not(Test-Path $modulePath)){
         New-Item $modulePath -ItemType Directory
     }
     ForEach($file in ($pubFiles + $privFiles + $classFiles)) {
-        Get-Content $file.FullName | Out-File "$modulePath\$moduleName.psm1" -Append -Encoding utf8
+        if ($file.fullname){
+            Get-Content $file.FullName | Out-File "$modulePath\$moduleName.psm1" -Append -Encoding utf8
+        }
     }
     Copy-Item "$srcPath\$moduleName.psd1" -Destination $modulePath
 
@@ -54,3 +56,4 @@ task Publish Test, {
 }
 
 task All ModuleBuild, Publish
+

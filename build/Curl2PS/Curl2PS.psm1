@@ -23,6 +23,17 @@ Function Get-URLData {
     [url]::new($Url)
 } 
     
+Function ConvertTo-HtString {
+    param (
+        [hashtable]$InputObject
+    )
+    $strKeys = @()
+    foreach ($key in $InputObject.Keys){
+        $strKeys += "    $key = '$($InputObject[$key])'"
+    }
+    $str = "@{`n" + ($strKeys -join "`n") + "`n}"
+    $str
+}
 Class CurlCommand {
     [string]$RawCommand
     [string]$Body
@@ -35,6 +46,8 @@ Class CurlCommand {
         [string]$curlString
     ){
         $this.RawCommand = $curlString
+        # Set the default method in case one isn't set later
+        $this.Method = 'Get'
         $tmpurl = [url]::new($curlString)
         if ($tmpurl){
             $this.URL = $tmpurl
@@ -102,7 +115,8 @@ Class CurlCommand {
             $outString += " -Body '$($this.Body)'"
         }
         if ($this.Headers.Keys){
-            $outString += " -Headers ('$($this.Headers | ConvertTo-Json -Compress)' | ConvertFrom-Json)"
+            #$outString += " -Headers ('$($this.Headers | ConvertTo-Json -Compress)' | ConvertFrom-Json)"
+            $outString += " -Headers $(ConvertTo-HtString $this.Headers)"
         }
         return $outString
     }
