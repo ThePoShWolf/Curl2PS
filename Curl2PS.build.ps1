@@ -28,7 +28,9 @@ task ModuleBuild Clean, DocBuild, {
         New-Item $modulePath -ItemType Directory
     }
     ForEach($file in ($pubFiles + $privFiles + $classFiles)) {
-        Get-Content $file.FullName | Out-File "$modulePath\$moduleName.psm1" -Append -Encoding utf8
+        if ($file.fullname){
+            Get-Content $file.FullName | Out-File "$modulePath\$moduleName.psm1" -Append -Encoding utf8
+        }
     }
     Copy-Item "$srcPath\$moduleName.psd1" -Destination $modulePath
 
@@ -46,11 +48,12 @@ task ModuleBuild Clean, DocBuild, {
 }
 
 task Test ModuleBuild, {
-    #Invoke-Pester $testPath
+    Invoke-Pester $testPath
 }
 
 task Publish Test, {
-    #Invoke-PSDeploy -Path $PSScriptRoot -Force
+    Invoke-PSDeploy -Path $PSScriptRoot -Force
 }
 
 task All ModuleBuild, Publish
+
