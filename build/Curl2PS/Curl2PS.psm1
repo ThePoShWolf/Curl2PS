@@ -50,6 +50,10 @@ Class CurlCommand {
     CurlCommand(
         [string]$curlString
     ){
+        if ($curlString -match "`r`n") {
+            $arr = $curlString -split "`r`n"
+            $curlString = ($arr | foreach-object {$_.TrimEnd('\').TrimEnd(' ')}) -join ' '
+        }
         $this.RawCommand = $curlString
         # Set the default method in case one isn't set later
         $this.Method = 'Get'
