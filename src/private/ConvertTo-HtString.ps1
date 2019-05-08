@@ -4,7 +4,7 @@ Function ConvertTo-HtString {
     )
     $strKeys = @()
     foreach ($key in $InputObject.Keys){
-        $strKeys += "    $key = '$($InputObject[$key])'"
+        $strKeys += "    '$key' = '$($InputObject[$key])'"
     }
     $str = "@{`n" + ($strKeys -join "`n") + "`n}"
     $str
