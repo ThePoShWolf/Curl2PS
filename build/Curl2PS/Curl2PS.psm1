@@ -1,4 +1,5 @@
-﻿Function ConvertTo-IRM {
+Function ConvertTo-IRM {
+    [cmdletbinding()]
     param (
         [curlcommand]$CurlCommand
     )
@@ -74,7 +75,7 @@ Class CurlCommand {
             # Match parameter value
             # Don't match quotes except for excaped quotes: \"
             $escapedParamName = [regex]::Escape($parameterName)
-            $workingStr -match "$escapedParamName (?<paramValueQuotes>`'(?<paramValue>[^']+)`'|`"(?<paramValue>((\\`")|[^`"])+)`"|(?<paramValue>[^\s]+))" | Out-Null
+            $workingStr -match "$escapedParamName (?<paramValueQuotes>`'(?<paramValue>[^']+)`'|`"(?<paramValue>((\\`")|[^`"])+)`"|(?<paramValue>[^\-][^\s]+))" | Out-Null
     
             # Do things based on what parameter it is
             switch ($parameterName.Trim('-')){
