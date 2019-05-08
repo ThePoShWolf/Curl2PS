@@ -1,8 +1,12 @@
 Function ConvertTo-IRM {
     [cmdletbinding()]
     param (
-        [curlcommand]$CurlCommand
+        [curlcommand]$CurlCommand,
+        [switch]$String
     )
-
-    $CurlCommand.ToIRM()
+    if($String.IsPresent){
+        $CurlCommand.ToIRM()
+    } else {
+        $CurlCommand.ToIRMSplat()
+    }
 }

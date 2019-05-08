@@ -88,6 +88,19 @@ Class CurlCommand {
         }
         return $outString
     }
+
+    [hashtable] ToIRMSplat(){
+        $out = @{}
+        $out['Uri'] = $this.URL.ToString()
+        $out['Method'] = $this.Method
+        if ($this.Body.Length -gt 0){
+            $out['Body'] = $this.Body
+        }
+        if ($this.Headers.Keys){
+            $out['Headers'] = $this.Headers
+        }
+        return $out
+    }
 }
 
 
