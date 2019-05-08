@@ -38,7 +38,7 @@ Class CurlCommand {
             # Match parameter value
             # Don't match quotes except for excaped quotes: \"
             $escapedParamName = [regex]::Escape($parameterName)
-            $workingStr -match "$escapedParamName (?<paramValueQuotes>`'(?<paramValue>[^']+)`'|`"(?<paramValue>((\\`")|[^`"])+)`"|(?<paramValue>[^\s]+))" | Out-Null
+            $workingStr -match "$escapedParamName (?<paramValueQuotes>`'(?<paramValue>[^']+)`'|`"(?<paramValue>((\\`")|[^`"])+)`"|(?<paramValue>[^\-][^\s]+))" | Out-Null
     
             # Do things based on what parameter it is
             switch ($parameterName.Trim('-')){
@@ -87,6 +87,19 @@ Class CurlCommand {
             $outString += " -Headers $(ConvertTo-HtString $this.Headers)"
         }
         return $outString
+    }
+
+    [hashtable] ToIRMSplat(){
+        $out = @{}
+        $out['Uri'] = $this.URL.ToString()
+        $out['Method'] = $this.Method
+        if ($this.Body.Length -gt 0){
+            $out['Body'] = $this.Body
+        }
+        if ($this.Headers.Keys){
+            $out['Headers'] = $this.Headers
+        }
+        return $out
     }
 }
 
