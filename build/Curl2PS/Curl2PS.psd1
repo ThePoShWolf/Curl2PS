@@ -24,13 +24,13 @@ GUID = 'c54d90ec-2d24-4763-8c65-de450e8503e1'
 Author = 'Anthony Howell'
 
 # Company or vendor of this module
-CompanyName = 'Unknown'
+CompanyName = 'Community'
 
 # Copyright statement for this module
 Copyright = '(c) 2019 Anthony Howell. All rights reserved.'
 
 # Description of the functionality provided by this module
-# Description = ''
+Description = 'A utility to help convert curl commands to Invoke-RestMethod syntax'
 
 # Minimum version of the PowerShell engine required by this module
 # PowerShellVersion = ''
