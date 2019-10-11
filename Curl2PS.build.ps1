@@ -5,7 +5,7 @@ $testPath = "$PSScriptRoot\tests"
 $moduleName = "Curl2PS"
 $modulePath = "$buildPath\$moduleName"
 $author = 'Anthony Howell'
-$version = '0.0.2'
+$version = '0.0.3'
 
 task Clean {
     If(Get-Module $moduleName){

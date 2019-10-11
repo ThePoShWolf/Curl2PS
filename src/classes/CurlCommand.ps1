@@ -1,7 +1,7 @@
 Class CurlCommand {
     [string]$RawCommand
     [string]$Body
-    [URL]$URL
+    [System.Uri]$URL
     [string]$Method
     [hashtable]$Headers = @{}
     [bool]$Verbose = $false
@@ -9,6 +9,7 @@ Class CurlCommand {
     CurlCommand(
         [string]$curlString
     ){
+        # This is only going to work on Windows I think...
         if ($curlString -match "`r`n") {
             $arr = $curlString -split "`r`n"
             $curlString = ($arr | foreach-object {$_.TrimEnd('\').TrimEnd(' ')}) -join ' '
@@ -16,62 +17,57 @@ Class CurlCommand {
         $this.RawCommand = $curlString
         # Set the default method in case one isn't set later
         $this.Method = 'Get'
-        
-        $tmpurl = [url]::new($curlString)
-        if ($tmpurl){
-            $this.URL = $tmpurl
-        } else {
-            # No URL present, error
+
+        $splitParams = [Microsoft.CodeAnalysis.CommandLineParser]::SplitCommandLineIntoArguments($curlString,$true)
+        if ($splitParams[0].ToLower() -ne 'curl') {
+            Throw "curlString does not start with 'curl'. It needs to."
         }
-
-        if ($tmpurl.FullUrl -match 'https?:\/\/(?<up>[^@]+)@'){
-            $encodedAuth = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($Matches.up))
-            $urlNoAuth = $tmpurl.FullUrl -replace "$($matches.up)@",''
-            $this.URL = [url]::new($urlNoAuth)
-            $this.Headers['Authorization'] = "Basic $encodedAuth"
-        }
-
-        # Remove url from string
-        $escapedUrl = [regex]::Escape($tmpurl)
-        $workingStr = $CurlString -replace '^curl\s+','' -replace "['`"]?$escapedUrl['`"]?",''
-
-        # Find all parameters
-        While ($workingStr -match '^(?<param>\-{1,2}[^\s]+)'){
-            $parameterName = $Matches.param
-            
-            # Match parameter value
-            # Don't match quotes except for excaped quotes: \"
-            $escapedParamName = [regex]::Escape($parameterName)
-            $workingStr -match "$escapedParamName (?<paramValueQuotes>`'(?<paramValue>[^']+)`'|`"(?<paramValue>((\\`")|[^`"])+)`"|(?<paramValue>[^\-][^\s]+))" | Out-Null
-    
-            # Do things based on what parameter it is
-            switch ($parameterName.Trim('-')){
-                {'H','header' -contains $_} {
-                    # Headers
-                    $split = ($Matches.paramValue.Split(':') -replace '\\"','"')
-                    $this.headers[($split[0].Trim())] = (($split[1..$($split.count)] -join ':').Trim())
+        for($x=1; $x -lt $splitParams.Count; $x++) {
+            # If this item is a parameter name, use it
+            # The next item must be the parameter value
+            # Unless the current item is a switch param
+            # If not, increment $x so we skip the next one
+            if ($splitParams[$x] -like '-*') {
+                $paramName = $splitParams[$x].TrimStart('-')
+                $paramValue = $splitParams[$x+1]
+                switch ($paramName.ToLower()){
+                    {'h','header' -contains $_} {
+                        # Headers
+                        $split = ($paramValue.Split(':') -replace '\\"','"')
+                        $this.headers[($split[0].Trim())] = (($split[1..$($split.count)] -join ':').Trim())
+                        $x++
+                    }
+                    {'X','request' -contains $_} {
+                        # Request type
+                        $this.Method = $paramValue.Trim()
+                        $x++
+                    }
+                    {'v','verbose' -contains $_} {
+                        # Verbosity
+                        $this.Verbose = $true
+                    }
+                    {'d','data' -contains $_} {
+                        # Body
+                        $this.body = $paramValue.Trim() -replace '\\"','"'
+                        $x++
+                    }
+                    default {
+                        # Unknown
+                        Throw "Unknown parameter: $($paramName). Cannot continue."
+                    }
                 }
-                {'X','request' -contains $_} {
-                    # Request type
-                    $this.Method = $matches.paramValue.Trim()
-                }
-                {'v','verbose' -contains $_} {
-                    # Verbosity
-                    $this.Verbose = $true
-                }
-                {'d','data' -contains $_} {
-                    # Body
-                    $this.body = $matches.paramValue.Trim() -replace '\\"','"'
-                }
-                default {
-                    # Unknown
-                    Write-Verbose "unknown: $($matches[0])"
-                }
+            } elseif ($splitParams[$x] -match '^https?\:\/\/') {
+                # Must be a url
+                $this.URL = $splitParams[$x]
             }
-    
-            # Remove the param name and value from the workingStr
-            $escapedMatch = [regex]::Escape($Matches[0])
-            $workingStr = ($workingStr -replace $escapedMatch,'').Trim()
+        }
+
+        # Check the url for basic auth
+        if ($this.URL.UserInfo -like '*:*'){
+            $encodedAuth = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($this.URL.UserInfo))
+            $urlNoAuth = $this.URL.OriginalString -replace "$($this.URL.UserInfo)@",''
+            $this.URL = [System.Uri]::new($urlNoAuth)
+            $this.Headers['Authorization'] = "Basic $encodedAuth"
         }
     }
 
@@ -81,11 +77,12 @@ Class CurlCommand {
 
     [string] ToIRM(){
         $outString = 'Invoke-RestMethod'
-        $outString += " -Uri $($this.URL.ToString())"
+        $outString += " -Uri '$($this.URL.ToString())'"
         $outString += " -Method $($this.Method)"
         if ($this.Body.Length -gt 0){
             $outString += " -Body '$($this.Body)'"
         }
+        $outString += " -Verbose:`$$($this.Verbose.ToString().ToLower())"
         if ($this.Headers.Keys){
             #$outString += " -Headers ('$($this.Headers | ConvertTo-Json -Compress)' | ConvertFrom-Json)"
             $outString += " -Headers $(ConvertTo-HtString $this.Headers)"
@@ -103,6 +100,7 @@ Class CurlCommand {
         if ($this.Headers.Keys){
             $out['Headers'] = $this.Headers
         }
+        $out['Verbose'] = $this.Verbose
         return $out
     }
 }

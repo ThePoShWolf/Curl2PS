@@ -6,6 +6,6 @@ Function Get-URLData {
         [Switch]
         $IsValidURL
     )
-    [url]::new($Url)
+    [System.Uri]::new($Url)
 } 
     
