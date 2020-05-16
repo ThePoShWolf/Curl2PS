@@ -2,58 +2,85 @@ $srcPath = "$PSScriptRoot\src"
 $buildPath = "$PSScriptRoot\build"
 $docPath = "$PSScriptRoot\docs"
 $testPath = "$PSScriptRoot\tests"
-$moduleName = "Curl2PS"
-$modulePath = "$buildPath\$moduleName"
-$author = 'Anthony Howell'
-$version = '0.0.3'
+$moduleName = ($MyInvocation.MyCommand.Name.Split('.') | Select-Object -SkipLast 2) -join '.'
+$modulePath = "$buildPath\$ModuleName"
+$version = '0.0.1'
 
+
+
+# Clean out any previous builds
 task Clean {
-    If(Get-Module $moduleName){
+    if (Get-Module $moduleName) {
         Remove-Module $moduleName
     }
-    If(Test-Path $modulePath){
-        $null = Remove-Item $modulePath -Recurse -ErrorAction Ignore
+    if (Test-Path $modulePath) {
+        Remove-Item $modulePath -Recurse -ErrorAction Ignore | Out-Null
     }
 }
 
-task DocBuild {
+# Build the docs, depends on PlatyPS
+task DocBuild ModuleBuild, {
+    if (-not (Test-Path $docPath)) {
+        New-Item $docPath -ItemType Directory
+    }
     New-ExternalHelp $docPath -OutputPath "$modulePath\EN-US"
 }
 
-task ModuleBuild Clean, DocBuild, {
-    $pubFiles = Get-ChildItem "$srcPath\public" -Filter *.ps1 -File
-    $privFiles = Get-ChildItem "$srcPath\private" -Filter *.ps1 -File
-    $classFiles = Get-ChildItem "$srcPath\classes" -Filter *.ps1 -File
-    If(-not(Test-Path $modulePath)){
+# Build the module
+task ModuleBuild Clean, {
+    $moduleScriptFiles = Get-ChildItem $srcPath -Filter *.ps1 -File -Recurse
+    if (-not(Test-Path $modulePath)) {
         New-Item $modulePath -ItemType Directory
     }
-    ForEach($file in ($pubFiles + $privFiles + $classFiles)) {
-        if ($file.fullname){
-            Get-Content $file.FullName | Out-File "$modulePath\$moduleName.psm1" -Append -Encoding utf8
+
+    # Add using.ps1 to the .psm1 first
+    foreach ($file in $moduleScriptFiles | ?{$_.Name -eq 'using.ps1'}) {
+        if ($file.fullname) {
+            Copy-Item $file.FullName -Destination $modulePath
         }
     }
+
+    # Add all .ps1 files to the .psm1
+    foreach ($file in $moduleScriptFiles | ?{$_.Name -ne 'onload.ps1' -and $_.Name -ne 'using.ps1'}) {
+        if ($file.fullname) {
+            Get-Content $file.fullname | Out-File "$modulePath\$moduleName.psm1" -Append -Encoding utf8
+        }
+    }
+    
+    # Add the onload.ps1 files last
+    foreach ($file in $moduleScriptFiles | ?{$_.Name -eq 'onload.ps1'}) {
+        if ($file.fullname) {
+            Get-Content $file.fullname | Out-File "$modulePath\$moduleName.psm1" -Append -Encoding utf8
+        }
+    }
+
+    # Copy dll dependencies
+    if (-not (Test-Path $modulePath\dependencies)) {
+        New-Item "$modulePath\dependencies" -ItemType Directory
+    }
+    foreach ($dll in (Get-ChildItem $srcPath\dependencies -filter *.dll -File)) {
+        Copy-Item $dll.FullName -Destination $modulePath\dependencies
+    }
+
+    # Copy the manifest
     Copy-Item "$srcPath\$moduleName.psd1" -Destination $modulePath
 
     $moduleManifestData = @{
-        Author = $author
-        Copyright = "(c) $((get-date).Year) $author. All rights reserved."
         Path = "$modulePath\$moduleName.psd1"
-        FunctionsToExport = $pubFiles.BaseName
-        RootModule = "$moduleName.psm1"
+        # Only export the public files
+        FunctionsToExport = ($moduleScriptFiles | Where-Object {$_.FullName -match "\\public\\[^\.]+\.ps1$"}).basename
         ModuleVersion = $version
-        ProjectUri = 'https://github.com/ThePoShWolf/Curl2PS'
     }
     Update-ModuleManifest @moduleManifestData
-    Import-Module $modulePath -RequiredVersion $version
 }
 
-task Test ModuleBuild, {
+Task Test ModuleBuild, {
+    Import-Module $modulePath -RequiredVersion $version
     Invoke-Pester $testPath
 }
 
-task Publish Test, {
-    Invoke-PSDeploy -Path $PSScriptRoot -Force
+task Publish Test, DocBuild, {
+    Invoke-PSDeploy -Force
 }
 
 task All ModuleBuild, Publish
-
