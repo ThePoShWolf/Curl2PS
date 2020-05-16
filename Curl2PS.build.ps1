@@ -4,7 +4,7 @@ $docPath = "$PSScriptRoot\docs"
 $testPath = "$PSScriptRoot\tests"
 $moduleName = ($MyInvocation.MyCommand.Name.Split('.') | Select-Object -SkipLast 2) -join '.'
 $modulePath = "$buildPath\$ModuleName"
-$version = '0.0.1'
+$version = '0.0.3'
 
 
 
