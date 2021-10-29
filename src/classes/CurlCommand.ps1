@@ -109,7 +109,7 @@ Class CurlCommand {
         $outString += " -Method $($this.Method)"
         $outString += " -Uri '$($this.URL.ToString())'"
         if($this.User.Length -gt 0){
-            $outString += " (Get-Credential -UserName '$($this.User)')"
+            $outString += " $($this.User)"
         }
         $outString += " -Verbose:`$$($this.Verbose.ToString().ToLowerInvariant())"
         if ($this.Headers.Keys){
