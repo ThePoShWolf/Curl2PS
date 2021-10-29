@@ -1,7 +1,7 @@
 
 #. "$PSScriptRoot\..\src\public\ConvertTo-IRM.ps1"
 
-describe "Testin ConvertTo-IRM"{
+describe "Testing ConvertTo-IRM"{
 
     $TestCase1 = @{}
     $TestCase1.CURL = 'curl -X GET https://PlopServer/identity/api/tenants/Woo/subtenants -H "Accept: application/json" -H "Authorization: Bearer {{token}}"'
@@ -14,12 +14,12 @@ describe "Testin ConvertTo-IRM"{
     $TestCases = @($TestCase1,$TestCase2)
 
     Context "Correct URL cases" {
-        IT 'When passed correct CURL command it should return correct invoke-restmethod'{
+        IT 'When passed a correct CURL command, it should return correct Invoke-RestMethod'{
             Param(
                 $CURL,$IRME
             )
 
-            ConvertTo-IRM -CurlCommand $CURL -String | Should be $IRME
+            ConvertTo-IRM -CurlCommand $CURL -GetParamsAsString | Should be $IRME
 
         } -TestCases $TestCases
 

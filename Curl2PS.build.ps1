@@ -5,7 +5,7 @@ $testPath = "$PSScriptRoot\tests"
 $moduleName = ($MyInvocation.MyCommand.Name.Split('.') | Select-Object -SkipLast 2) -join '.'
 $modulePath = "$buildPath\$ModuleName"
 $version = '0.0.3'
-
+$Authors = 'Anthony Howell'
 
 
 # Clean out any previous builds
@@ -23,7 +23,7 @@ task DocBuild ModuleBuild, {
     if (-not (Test-Path $docPath)) {
         New-Item $docPath -ItemType Directory
     }
-    New-ExternalHelp $docPath -OutputPath "$modulePath\EN-US"
+    New-ExternalHelp $docPath -OutputPath "$modulePath\en-US"
 }
 
 # Build the module
@@ -34,21 +34,21 @@ task ModuleBuild Clean, {
     }
 
     # Add using.ps1 to the .psm1 first
-    foreach ($file in $moduleScriptFiles | ?{$_.Name -eq 'using.ps1'}) {
+    foreach ($file in $moduleScriptFiles | Where-Object{$_.Name -eq 'using.ps1'}) {
         if ($file.fullname) {
             Copy-Item $file.FullName -Destination $modulePath
         }
     }
 
     # Add all .ps1 files to the .psm1
-    foreach ($file in $moduleScriptFiles | ?{$_.Name -ne 'onload.ps1' -and $_.Name -ne 'using.ps1'}) {
+    foreach ($file in $moduleScriptFiles | Where-Object{$_.Name -ne 'onload.ps1' -and $_.Name -ne 'using.ps1'}) {
         if ($file.fullname) {
             Get-Content $file.fullname | Out-File "$modulePath\$moduleName.psm1" -Append -Encoding utf8
         }
     }
     
     # Add the onload.ps1 files last
-    foreach ($file in $moduleScriptFiles | ?{$_.Name -eq 'onload.ps1'}) {
+    foreach ($file in $moduleScriptFiles | Where-Object{$_.Name -eq 'onload.ps1'}) {
         if ($file.fullname) {
             Get-Content $file.fullname | Out-File "$modulePath\$moduleName.psm1" -Append -Encoding utf8
         }
@@ -80,7 +80,7 @@ Task Test ModuleBuild, {
 }
 
 task Publish Test, DocBuild, {
-    Invoke-PSDeploy -Force
+    Invoke-PSDeploy -Verbose -Force
 }
 
 task All ModuleBuild, Publish
