@@ -2,9 +2,9 @@ Function ConvertTo-IRM {
     [cmdletbinding()]
     param (
         [CurlCommand]$CurlCommand,
-        [switch]$GetParamsAsString
+        [switch]$CommandAsString
     )
-    if($CommandAsString.IsPresent){
+    if ($CommandAsString.IsPresent) {
         $CurlCommand.ToIRM()
     } else {
         $CurlCommand.ToIRMSplat()
