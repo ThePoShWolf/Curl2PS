@@ -49,7 +49,9 @@ Class CurlCommand {
                     }
                     { 'd', 'data' -ccontains $_ } {
                         # Body
-                        $this.Body = $paramValue.Trim() -replace '\\"', '"'
+                        if ($paramValue.Length -gt 0) {
+                            $this.Body = $paramValue.Trim() -replace '\\"', '"'
+                        }
                         $x++
                     }
                     { 'u', 'user' -ccontains $_ } {
