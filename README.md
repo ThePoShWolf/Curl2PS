@@ -24,7 +24,7 @@ PS> Invoke-RestMethod @splat
 Or if you'd prefer the string command:
 
 ```powershell
-ConvertTo-IRM $CurlString -GetParamsAsString
+ConvertTo-IRM $CurlString -CommandAsString
 
 Invoke-RestMethod -Uri https://us1.pdfgeneratorapi.com/api/v3/templates -Method GET -Headers @{
     'X-Auth-Key' = '61e5f04ca1794253ed17e6bb986c1702'
@@ -38,7 +38,7 @@ Invoke-RestMethod -Uri https://us1.pdfgeneratorapi.com/api/v3/templates -Method 
 Or another example:
 
 ```powershell
-PS> ConvertTo-IRM -CurlCommand 'curl --request GET "https://ncg1in-8d1rag:5nuauzj5pkfftlz3fmyksmyhat6j35kf@api.sherpadesk.com/tickets?status=open,onhold&role=user&limit=6&format=json"  --data ""' -GetParamsAsString
+PS> ConvertTo-IRM -CurlCommand 'curl --request GET "https://ncg1in-8d1rag:5nuauzj5pkfftlz3fmyksmyhat6j35kf@api.sherpadesk.com/tickets?status=open,onhold&role=user&limit=6&format=json"  --data ""' -CommandAsString
 
 Invoke-RestMethod -Uri https://api.sherpadesk.com/tickets -Method GET -Headers @{
     'Authorization' = 'Basic bmNnMWluLThkMXJhZzo1bnVhdXpqNXBrZmZ0bHozZm15a3NteWhhdDZqMzVrZg=='
