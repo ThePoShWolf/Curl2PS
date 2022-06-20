@@ -1,7 +1,7 @@
 <!--- Provide a brief summary of the issue in the Title above -->
 
-## curl command
-<!--- If you come across a curl command that dosen't work, provide it here -->
+## `curl` command
+<!--- If you come across a curl command that doesn't work, provide it here -->
 
 ## Expected Behavior
 <!--- If you're describing a bug, tell us what should happen -->

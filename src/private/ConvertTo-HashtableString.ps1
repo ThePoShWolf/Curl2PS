@@ -1,6 +1,6 @@
-Function ConvertTo-HtString {
+Function ConvertTo-HashtableString {
     param (
-        [hashtable]$InputObject
+        [Hashtable]$InputObject
     )
     $strKeys = @()
     foreach ($key in $InputObject.Keys){

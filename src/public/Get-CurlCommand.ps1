@@ -1,7 +1,7 @@
 Function Get-CurlCommand {
     param (
-        [ValidateScript({$_.ToLower() -match '^curl '})]
+        [ValidateScript({$_.ToLowerInvariant().Trim() -match '^curl '})]
         [string]$CurlString
     )
-    [curlcommand]::new($CurlString)
+    [CurlCommand]::new($CurlString.Trim())
 }
