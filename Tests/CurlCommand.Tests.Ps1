@@ -1,4 +1,4 @@
-﻿InModuleScope -ModuleName Curl2PS {
+﻿<#InModuleScope -ModuleName Curl2PS {
     Describe '[CurlCommand]-[Constructors]' {
 
         It '[CurlCommand]-[Constructor]([string]curlString) should Not Throw' {
@@ -79,4 +79,4 @@
 
     }#EndDescribeBlock
 
-}
+}#>
