@@ -33,6 +33,7 @@ task DocBuild ModuleBuild, {
 # Build the module
 task ModuleBuild Clean, {
     $moduleScriptFiles = & {
+        Get-ChildItem $srcPath\classes -Filter *.ps1 -File -Recurse
         Get-ChildItem $srcPath\private -Filter *.ps1 -File -Recurse
         Get-ChildItem $srcPath\public -Filter *.ps1 -File -Recurse
         Get-ChildItem $srcPath -Filter *.ps1 -File
