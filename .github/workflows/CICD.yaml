@@ -20,7 +20,13 @@ jobs:
 
       - name: Test Module
         shell: pwsh
-        run: Invoke-Build -Task Test
+        run: Invoke-Build -Task Test -Pipeline
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()
+        with:
+          junit_files: "testResults.xml"
 
       - name: Publish Module
         if: ${{ github.event_name == 'push' }}

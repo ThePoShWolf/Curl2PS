@@ -1,7 +1,8 @@
 param (
     [version]$Version = '0.0.1',
     [string]$NugetApiKey,
-    [string]$PreRelease
+    [string]$PreRelease,
+    [switch]$Pipeline
 )
 $srcPath = "$PSScriptRoot\src"
 $buildPath = "$PSScriptRoot\build"
@@ -93,7 +94,11 @@ task Test ModuleBuild, {
     Write-Host "Importing module."
     Import-Module $modulePath -RequiredVersion $version
     Write-Host "Invoking tests."
-    Invoke-Pester $testPath -Verbose
+    if ($Pipeline.IsPresent) {
+        Invoke-Pester $testPath -Verbose -OutputFormat JUnitXml
+    } else {
+        Invoke-Pester $testPath -Verbose
+    }
 }
 
 task Publish Test, DocBuild, {
