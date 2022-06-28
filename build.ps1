@@ -3,12 +3,14 @@ param(
     [string[]]$Task = 'ModuleBuild'
 )
 
-$DependentModules = @('PSDeploy', 'InvokeBuild', 'PlatyPS', 'Pester')
+$DependentModules = @('InvokeBuild', 'PlatyPS', 'Pester')
 foreach ($Module in $DependentModules) {
     if (-not (Get-Module $module -ListAvailable)) {
+        Write-Host "Installing '$module'..."
         Install-Module -Name $Module -Scope CurrentUser -Force
     }
     if (-not (Get-Module $module)) {
+        Write-Host "Importing '$module'..."
         Import-Module $module -ErrorAction Stop
     }
 }
