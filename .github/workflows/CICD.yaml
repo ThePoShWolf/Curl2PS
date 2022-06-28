@@ -31,4 +31,4 @@ jobs:
       - name: Publish Module
         if: ${{ github.event_name == 'push' }}
         shell: pwsh
-        run: Invoke-Build -Task Publish
+        run: Invoke-Build -Task Publish -NugetApiKey ${{ secrets.NUGETAPIKEY }}
