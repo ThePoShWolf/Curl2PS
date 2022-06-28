@@ -20,7 +20,7 @@ jobs:
 
       - name: Test Module
         shell: pwsh
-        run: Invoke-Build -Task Test -Pipeline
+        run: Invoke-Build -Task Test -Workflow
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
