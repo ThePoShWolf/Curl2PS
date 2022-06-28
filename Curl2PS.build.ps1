@@ -1,5 +1,5 @@
 param (
-    [version]$Version = '0.0.1',
+    [version]$Version = '0.1.0',
     [string]$NugetApiKey,
     [string]$PreRelease,
     [switch]$Pipeline
