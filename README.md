@@ -1,5 +1,7 @@
 # Curl2PS
 
+[![Curl2PS](https://img.shields.io/powershellgallery/v/Curl2PS.svg?style=flat-square&label=Curl2PS "Curl2PS")](https://www.powershellgallery.com/packages/Curl2PS/)
+
 This module is a utility module to help convert curl commands to Invoke-RestMethod syntax.
 
 This module includes classes for dealing with the curl command as well as URLs, but primarily converts curl commands to Invoke-RestMethod syntax with the ```ConvertTo-IRM``` function.
@@ -50,3 +52,17 @@ Invoke-RestMethod -Uri https://api.sherpadesk.com/tickets -Method GET -Headers @
 If you find a curl command that doesn't properly convert, please [open an issue](./../../issues)!
 
 PRs welcome!
+
+## Change log
+
+### 0.1.0 
+
+- Added -u Curl parameter (thank you [@mavaddat!](https://github.com/mavaddat))
+- Included Javascript to scrape curl parameters from the manpage (thank you [@mavaddat!](https://github.com/mavaddat))
+- Changed `ConvertTo-IRM`'s `-String` parameter to `-CommandAsString`.
+- Added `[OutputType]` to all commands.
+- Updated docs.
+
+### Other Credits
+
+- Implemented classes and class based pester testing (thank you [@Stephanevg](https://github.com/Stephanevg))

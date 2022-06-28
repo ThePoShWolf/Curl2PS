@@ -1,0 +1,34 @@
+name: CI/CI
+
+on: 
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  CICD:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v2
+
+      - name: Build Module
+        shell: pwsh
+        run: ./build.ps1 -Task ModuleBuild
+
+      - name: Test Module
+        shell: pwsh
+        run: Invoke-Build -Task Test -Workflow
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()
+        with:
+          junit_files: "testResults.xml"
+
+      - name: Publish Module
+        if: ${{ github.event_name == 'push' }}
+        shell: pwsh
+        run: Invoke-Build -Task Publish -NugetApiKey ${{ secrets.NUGETAPIKEY }}

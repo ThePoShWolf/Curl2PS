@@ -8,7 +8,7 @@ schema: 2.0.0
 # Get-CurlCommand
 
 ## SYNOPSIS
-{{Fill in the Synopsis}}
+Converts the curl command into the module's internal CurlCommand class. Useful for debugging.
 
 ## SYNTAX
 
@@ -17,21 +17,30 @@ Get-CurlCommand [[-CurlString] <String>]
 ```
 
 ## DESCRIPTION
-{{Fill in the Description}}
+Converts the curl command into the module's internal CurlCommand class. Useful for debugging.
 
 ## EXAMPLES
 
 ### Example 1
 ```powershell
-PS C:\> {{ Add example code here }}
+PS> $str = 'curl -X GET https://server/api/path -H "Accept: application/json" -H "Authorization: Bearer {{token}}"'
+PS> Get-CurlCommand -CurlString $str
+
+Headers    : {Accept, Authorization}
+Verbose    : False
+RawCommand : curl -X GET https://server/api/path -H "Accept: application/json" -H "Authorization: Bearer {{token}}"
+User       : 
+Body       : 
+URL        : https://server/api/path
+Method     : GET
 ```
 
-{{ Add example description here }}
+Returns the Curl string as the internal object class.
 
 ## PARAMETERS
 
 ### -CurlString
-{{Fill CurlString Description}}
+The curl string to format as a CurlCommand object
 
 ```yaml
 Type: String
@@ -51,7 +60,8 @@ Accept wildcard characters: False
 
 ## OUTPUTS
 
-### System.Object
+### CurlCommand
+
 ## NOTES
 
 ## RELATED LINKS

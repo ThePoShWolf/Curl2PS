@@ -1,4 +1,4 @@
-﻿InModuleScope -ModuleName Curl2PS{
+﻿<#InModuleScope -ModuleName Curl2PS {
     Describe '[CurlCommand]-[Constructors]' {
 
         It '[CurlCommand]-[Constructor]([string]curlString) should Not Throw' {
@@ -11,7 +11,7 @@
 
             # -- Assert
 
-            { [CurlCommand]::New($curlString) } | Should Not Throw 
+            { [CurlCommand]::New($curlString) } | Should -Not -Throw
 
         }# end of it block
 
@@ -30,7 +30,7 @@
 
             # -- Assert
 
-            { $Instance.ToString() } | Should Not Throw
+            { $Instance.ToString() } | Should -Not -Throw
 
         } #End It Block
 
@@ -44,7 +44,7 @@
             $Instance = [CurlCommand]::New($curlString)
             # -- Assert
 
-            ($Instance.ToString()).GetType().Name | Should be string
+            ($Instance.ToString()).GetType().Name | Should -Be String
 
         } #End It Block
 
@@ -59,7 +59,7 @@
 
             # -- Assert
 
-            { $Instance.ToIRM() } | Should Not Throw
+            { $Instance.ToIRM() } | Should -Not -Throw
 
         } #End It Block
 
@@ -73,10 +73,10 @@
             $Instance = [CurlCommand]::New($curlString)
             # -- Assert
 
-            ($Instance.ToIRM()).GetType().Name | Should be string
+            ($Instance.ToIRM()).GetType().Name | Should -Be String
 
         } #End It Block
 
     }#EndDescribeBlock
 
-}
+}#>
