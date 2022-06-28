@@ -94,10 +94,15 @@ task Test ModuleBuild, {
     Write-Host "Importing module."
     Import-Module $modulePath -RequiredVersion $version
     Write-Host "Invoking tests."
+    $config = New-PesterConfiguration
+    $config.Run.Path = '.\Tests'
     if ($Workflow.IsPresent) {
-        Invoke-Pester $testPath -Verbose -OutputFormat JUnitXml
+        $config.Output.CIFormat = 'GithubActions'
+        $config.TestResult.Enabled = $true
+        $config.TestResult.OutputFormat = 'JUnitXml'
+        Invoke-Pester -Configuration $config
     } else {
-        Invoke-Pester $testPath -Verbose
+        Invoke-Pester -Configuration $config
     }
 }
 

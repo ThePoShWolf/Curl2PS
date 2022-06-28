@@ -4,11 +4,11 @@
 Describe "Testing ConvertTo-IRM" {
 
     $TestCase1 = @{}
-    $TestCase1.CURL = 'curl -X GET https://PlopServer/identity/api/tenants/Woo/subtenants -H "Accept: application/json" -H "Authorization: Bearer {{token}}"'
+    $TestCase1.CURL = 'curl -X GET https://PlopServer/identity/api/tenants/Woo/subtenants -H "Authorization: Bearer {{token}}" -H "Accept: application/json"'
     $TestCase1.IRME = "Invoke-RestMethod -Method GET -Uri 'https://plopserver/identity/api/tenants/Woo/subtenants' -Verbose:`$false -Headers @{`n    'Accept' = 'application/json'`n    'Authorization' = 'Bearer {{token}}'`n}"
     
     $TestCase2 = @{}
-    $TestCase2.CURL = 'curl -X GET "https://testdomain.com/catalog-service/api/consumer/entitledCatalogItems?page=1&limit=1000" -H "Accept: application/json" -H "Authorization: Bearer {{token}}"'
+    $TestCase2.CURL = 'curl -X GET "https://testdomain.com/catalog-service/api/consumer/entitledCatalogItems?page=1&limit=1000" -H "Authorization: Bearer {{token}}" -H "Accept: application/json"'
     $TestCase2.IRME = "Invoke-RestMethod -Method GET -Uri 'https://testdomain.com/catalog-service/api/consumer/entitledCatalogItems?page=1&limit=1000' -Verbose:`$false -Headers @{`n    'Accept' = 'application/json'`n    'Authorization' = 'Bearer {{token}}'`n}"
 
     $TestCases = @($TestCase1, $TestCase2)
