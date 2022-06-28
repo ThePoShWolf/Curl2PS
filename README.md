@@ -1,6 +1,6 @@
 # Curl2PS
 
-[![Curl2PS](https://img.shields.io/powershellgallery/v/Curl2PS.svg?style=flat-square&label=BrazenCloud.ADK "Curl2PS")](https://www.powershellgallery.com/packages/Curl2PS/)
+[![Curl2PS](https://img.shields.io/powershellgallery/v/Curl2PS.svg?style=flat-square&label=Curl2PS "Curl2PS")](https://www.powershellgallery.com/packages/Curl2PS/)
 
 This module is a utility module to help convert curl commands to Invoke-RestMethod syntax.
 
@@ -57,8 +57,12 @@ PRs welcome!
 
 ### 0.1.0 
 
-- Added -u Curl parameter (thank you @mavaddat!)
-- Included Javascript to scrape curl parameters from the manpage (thank you @mavaddat!)
+- Added -u Curl parameter (thank you [@mavaddat!](https://github.com/mavaddat))
+- Included Javascript to scrape curl parameters from the manpage (thank you [@mavaddat!](https://github.com/mavaddat))
 - Changed `ConvertTo-IRM`'s `-String` parameter to `-CommandAsString`.
 - Added `[OutputType]` to all commands.
 - Updated docs.
+
+### Other Credits
+
+- Implemented classes and class based pester testing (thank you [@Stephanevg](https://github.com/Stephanevg))
