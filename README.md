@@ -57,5 +57,8 @@ PRs welcome!
 
 ### 0.1.0 
 
-- Added -u Curl parameter
+- Added -u Curl parameter (thank you @mavaddat!)
+- Included Javascript to scrape curl parameters from the manpage (thank you @mavaddat!)
 - Changed `ConvertTo-IRM`'s `-String` parameter to `-CommandAsString`.
+- Added `[OutputType]` to all commands.
+- Updated docs.
