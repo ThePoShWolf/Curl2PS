@@ -5,6 +5,9 @@ Function ConvertTo-IRM {
         DefaultParameterSetName = 'asSplat'
     )]
     param (
+        [Parameter(
+            Position = 0
+        )]
         [CurlCommand]$CurlCommand,
         [Parameter(
             ParameterSetName = 'asString'
