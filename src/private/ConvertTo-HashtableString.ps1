@@ -3,7 +3,7 @@ Function ConvertTo-HashtableString {
         [Hashtable]$InputObject
     )
     $strKeys = @()
-    foreach ($key in $InputObject.Keys){
+    foreach ($key in $InputObject.Keys | Sort-Object) {
         $strKeys += "    '$key' = '$($InputObject[$key])'"
     }
     $str = "@{`n" + ($strKeys -join "`n") + "`n}"

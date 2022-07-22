@@ -14,12 +14,12 @@ Converts a CURL command to an Invoke-RestMethod command
 
 ### asSplat (Default)
 ```
-ConvertTo-IRM [-CurlCommand <CurlCommand>] [<CommonParameters>]
+ConvertTo-IRM [[-CurlCommand] <CurlCommand>] [-CompressJSON] [<CommonParameters>]
 ```
 
 ### asString
 ```
-ConvertTo-IRM [-CurlCommand <CurlCommand>] [-CommandAsString] [<CommonParameters>]
+ConvertTo-IRM [[-CurlCommand] <CurlCommand>] [-CommandAsString] [-CompressJSON] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -74,6 +74,21 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -CompressJSON
+If present, the script will attempt to compress the body as JSON (ConvertTo-Json -Compress)
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -CurlCommand
 The curl command to be converted to Invoke-RestMethod
 
@@ -83,7 +98,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
