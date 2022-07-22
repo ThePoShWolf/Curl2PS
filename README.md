@@ -55,6 +55,14 @@ PRs welcome!
 
 ## Change log
 
+### 0.1.1
+
+- Hugely improved parameter parsing to support both types of quotes in the same curl command (#36)
+- Added new curl parameters (#35):
+  - `-k` and `--insecure`
+  - `-s` and `--silent`
+- Added support for grouped, single char parameters such as `-ksX` (#35)
+
 ### 0.1.0 
 
 - Added -u Curl parameter (thank you [@mavaddat!](https://github.com/mavaddat))
