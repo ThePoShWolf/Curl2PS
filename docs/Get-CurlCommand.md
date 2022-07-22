@@ -13,7 +13,7 @@ Converts the curl command into the module's internal CurlCommand class. Useful f
 ## SYNTAX
 
 ```
-Get-CurlCommand [[-CurlString] <String>]
+Get-CurlCommand [[-CurlString] <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -53,6 +53,9 @@ Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
