@@ -122,6 +122,18 @@ Class CurlCommand {
         $this.Headers['Authorization'] = "Basic $encodedAuth"
     }
 
+    CompressJSON () {
+        if ($this.Body.Length -gt 2) {
+            try {
+                $this.Body = $this.Body | ConvertFrom-Json | ConvertTo-Json -Depth 100 -Compress
+            } catch {
+                Write-Warning 'Unable to clean up the JSON.'
+            }
+        } else {
+            Write-Warning 'There is no JSON body to clean.'
+        }
+    }
+
     [string] ToString() {
         return $this.RawCommand
     }

@@ -12,8 +12,14 @@ Function ConvertTo-IRM {
         [Parameter(
             ParameterSetName = 'asString'
         )]
-        [switch]$CommandAsString
+        [switch]$CommandAsString,
+        [switch]$CompressJSON
     )
+
+    if ($CompressJSON.IsPresent) {
+        $CurlCommand.CompressJSON()
+    }
+
     if ($CommandAsString.IsPresent) {
         $CurlCommand.ToIRM()
     } else {
