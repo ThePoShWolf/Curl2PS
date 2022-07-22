@@ -13,7 +13,7 @@ Class CurlCommand {
         # Split at platform-dependent NewLine
         if ($curlString -match "\n") {
             $arr = $curlString -split "\n"
-            $curlString = ($arr | ForEach-Object { $_.TrimEnd('\').TrimEnd(' ') }) -join ' '
+            $curlString = ($arr | ForEach-Object { $_.TrimEnd('\').Trim() }) -join ' '
         }
         $this.RawCommand = $curlString
         # Set the default method in case one isn't set later
