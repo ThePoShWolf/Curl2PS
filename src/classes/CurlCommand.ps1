@@ -20,8 +20,8 @@ Class CurlCommand {
         $this.Method = 'Get'
 
         $splitParams = Invoke-Command -ScriptBlock ([scriptblock]::Create("parse $curlString"))
-        if ($splitParams[0].ToLowerInvariant() -ne 'curl') {
-            Throw "`$curlString does not start with 'curl', which is necessary for correct parsing."
+        if ($splitParams[0] -notin 'curl', 'curl.exe') {
+            Throw "`$curlString does not start with 'curl' or 'curl.exe', which is necessary for correct parsing."
         }
         for ($x = 1; $x -lt $splitParams.Count; $x++) {
             # If this item is a parameter name, use it
