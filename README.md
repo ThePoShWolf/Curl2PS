@@ -55,6 +55,10 @@ PRs welcome!
 
 ## Change log
 
+### 0.1.2
+
+- Now supports commands that use `curl.exe`. (thank you [@ImportTaste](https://github.com/ImportTaste))
+
 ### 0.1.1
 
 - Hugely improved parameter parsing to support both types of quotes in the same curl command (#36)

@@ -1,5 +1,5 @@
 param (
-    [version]$Version = '0.1.0',
+    [version]$Version = '0.1.2',
     [string]$NugetApiKey,
     [string]$PreRelease,
     [switch]$Workflow
@@ -101,7 +101,8 @@ task Test ModuleBuild, {
         $config.TestResult.Enabled = $true
         $config.TestResult.OutputFormat = 'JUnitXml'
         Invoke-Pester -Configuration $config
-    } else {
+    }
+    else {
         Invoke-Pester -Configuration $config
     }
 }
