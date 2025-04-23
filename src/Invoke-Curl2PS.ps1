@@ -32,11 +32,22 @@ Function Invoke-Curl2PS {
                         $paramName = $config.Arguments[$paramName]
                     }
                     $out = $config.Arguments[$paramName].Value.Invoke($paramValue)
-                    [pscustomobject]@{
+                    $data = [pscustomobject]@{
                         Type          = $config.Arguments[$paramName].Type
                         ParameterName = $config.Arguments[$paramName].ParameterName
                         Value         = $out
                     }
+                    if ($data.ParameterName -eq 'Headers' -and $config.Headers.Keys -contains $data.Value[0].Keys[0]) {
+                        $key = $data.Value[0].Keys[0]
+                        if ([version]$config.Headers[$key].MinimumVersion -lt $PSVersionTable.PSVersion) {
+                            $data = [pscustomobject]@{
+                                Type          = $config.Headers[$key].Type
+                                ParameterName = $config.Headers[$key].ParameterName
+                                Value         = $data.Value[0].Values[0]
+                            }
+                        }
+                    }
+                    $data
                 } else {
                     "Does not contain $paramName"
                 }

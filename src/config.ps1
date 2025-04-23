@@ -35,4 +35,11 @@
             }
         }
     }
+    Headers   = @{
+        "Content-Type" = @{
+            MinimumVersion = "7.0"
+            ParameterName  = "ContentType"
+            Type           = "String"
+        }
+    }
 }
