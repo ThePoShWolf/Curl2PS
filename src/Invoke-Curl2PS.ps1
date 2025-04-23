@@ -28,6 +28,9 @@ Function Invoke-Curl2PS {
             $paramValue = $splitParams[$x + 1]
             foreach ($paramName in $paramNames) {
                 if ($config.Arguments.Keys -ccontains $paramName) {
+                    if ($config.Arguments[$paramName] -is [string]) {
+                        $paramName = $config.Arguments[$paramName]
+                    }
                     $out = $config.Arguments[$paramName].Value.Invoke($paramValue)
                     [pscustomobject]@{
                         Type          = $config.Arguments[$paramName].Type
