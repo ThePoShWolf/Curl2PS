@@ -1,6 +1,6 @@
 @{
     Arguments = @{
-        "H"       = @{
+        "H"        = @{
             ParameterName = "Headers"
             Type          = "Hashtable"
             Value         = {
@@ -10,30 +10,39 @@
                 }
             }
         }
-        "header"  = "H"
-        "X"       = @{
+        "header"   = "H"
+        "X"        = @{
             ParameterName = "Method"
             Type          = "String"
             Value         = {
                 $args[0].Trim()
             }
         }
-        "request" = "X"
-        "d"       = @{
+        "request"  = "X"
+        "d"        = @{
             ParameterName = "Body"
             Type          = "String"
             Value         = {
                 $_.Trim() -replace '\\"', '"'
             }
         }
-        "data"    = "d"
-        "url"     = @{
+        "data"     = "d"
+        "url"      = @{
             ParameterName = "Uri"
             Type          = "String"
             Value         = {
                 $_.Trim()
             }
         }
+        "k"        = @{
+            MinimumVersion = "6.0"
+            ParameterName  = "SkipCertificateCheck"
+            Type           = "Switch"
+            Value          = {
+                $true
+            }
+        }
+        "insecure" = "k"
     }
     Headers   = @{
         "Content-Type" = @{

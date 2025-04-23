@@ -31,6 +31,10 @@ Function Invoke-Curl2PS {
                     if ($config.Arguments[$paramName] -is [string]) {
                         $paramName = $config.Arguments[$paramName]
                     }
+                    if ($config.Arguments[$paramName].MinimumVersion -and [version]$config.Arguments[$paramName].MinimumVersion -gt $PSVersionTable.PSVersion) {
+                        Write-Warning "The parameter $paramName is not supported in this version of PowerShell. Minimum version required: $($config.Arguments[$paramName].MinimumVersion)"
+                        continue
+                    }
                     $out = $config.Arguments[$paramName].Value.Invoke($paramValue)
                     $data = [pscustomobject]@{
                         Type          = $config.Arguments[$paramName].Type
