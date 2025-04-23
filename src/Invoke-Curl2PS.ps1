@@ -39,7 +39,7 @@ Function Invoke-Curl2PS {
                     }
                     if ($data.ParameterName -eq 'Headers' -and $config.Headers.Keys -contains $data.Value[0].Keys[0]) {
                         $key = $data.Value[0].Keys[0]
-                        if ([version]$config.Headers[$key].MinimumVersion -lt $PSVersionTable.PSVersion) {
+                        if ($config.Headers[$key].Keys -notcontains 'MinimumVersion' -or [version]$config.Headers[$key].MinimumVersion -lt $PSVersionTable.PSVersion) {
                             $data = [pscustomobject]@{
                                 Type          = $config.Headers[$key].Type
                                 ParameterName = $config.Headers[$key].ParameterName
