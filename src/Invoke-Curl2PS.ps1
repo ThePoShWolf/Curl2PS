@@ -25,22 +25,27 @@ Function Invoke-Curl2PS {
                 # multiple single char flags
                 [string[]]$paramNames = $paramNames[0][0..$paramNames[0].Length]
             }
+            # grab the value
             $paramValue = $splitParams[$x + 1]
             foreach ($paramName in $paramNames) {
                 if ($config.Arguments.Keys -ccontains $paramName) {
+                    # if the argument value is a string, locate the correct argument in the config
                     if ($config.Arguments[$paramName] -is [string]) {
                         $paramName = $config.Arguments[$paramName]
                     }
+                    # minimum version check (i.e. SkipCertificateCheck)
                     if ($config.Arguments[$paramName].MinimumVersion -and [version]$config.Arguments[$paramName].MinimumVersion -gt $PSVersionTable.PSVersion) {
                         Write-Warning "The parameter $paramName is not supported in this version of PowerShell. Minimum version required: $($config.Arguments[$paramName].MinimumVersion)"
                         continue
                     }
+                    # invoke the config's script block to return the value
                     $out = Invoke-Command -ScriptBlock $config.Arguments[$paramName].Value -ArgumentList $paramValue
                     $data = [pscustomobject]@{
                         Type          = $config.Arguments[$paramName].Type
                         ParameterName = $config.Arguments[$paramName].ParameterName
                         Value         = $out
                     }
+                    # headers are a special case, as they are a hashtable of key/value pairs and sometimes represent other parameters for Invoke-RestMethod
                     if ($data.ParameterName -eq 'Headers' -and $config.Headers.Keys -contains $data.Value.Keys[0]) {
                         $key = $data.Value.Keys[0]
                         if ($config.Headers[$key].Keys -notcontains 'MinimumVersion' -or [version]$config.Headers[$key].MinimumVersion -lt $PSVersionTable.PSVersion) {
@@ -57,6 +62,7 @@ Function Invoke-Curl2PS {
                 }
             }
         } elseif ($splitParams[$x] -match '^https?\:\/\/') {
+            # the url in curl is the last parameter, so we need to check if it is a valid URL
             [pscustomobject]@{
                 Type          = 'String'
                 ParameterName = 'Uri'
@@ -65,6 +71,7 @@ Function Invoke-Curl2PS {
         }
     }
 
+    # generate a splat representation of the parameters
     $splat = @{}
     foreach ($paramGroup in $parameters | Group-Object ParameterName) {
         if ($paramGroup.Count -gt 1) {
@@ -85,6 +92,7 @@ Function Invoke-Curl2PS {
     }
     $splat
 
+    # generate a string representation of the Invoke-RestMethod command
     $baseStr = "Invoke-RestMethod -Uri '$($splat.Uri)' -Method $($splat.Method)"
     foreach ($paramGroup in $parameters | Group-Object ParameterName) {
         if ($('Uri', 'Method') -contains $paramGroup.Name) {
