@@ -43,6 +43,14 @@
             }
         }
         "insecure" = "k"
+        "v"        = @{
+            ParameterName = "Verbose"
+            Type          = "Switch"
+            Value         = {
+                $true
+            }
+        }
+        "verbose"  = "v"
     }
     Headers   = @{
         "Content-Type" = @{
