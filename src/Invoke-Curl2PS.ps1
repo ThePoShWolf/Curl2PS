@@ -1,17 +1,17 @@
 Function Invoke-Curl2PS {
     [cmdletbinding()]
     param (
-        [string]$CurlCommand
+        [string]$CurlString
     )
     $config = . .\src\config.ps1
-    if ($curlString -match "\n") {
-        $arr = $curlString -split "\n"
-        $curlString = ($arr | ForEach-Object { $_.TrimEnd('\').Trim() }) -join ' '
+    if ($CurlString -match "\n") {
+        $arr = $CurlString -split "\n"
+        $CurlString = ($arr | ForEach-Object { $_.TrimEnd('\').Trim() }) -join ' '
     }
 
-    $splitParams = Invoke-Command -ScriptBlock ([scriptblock]::Create("parse $curlString"))
+    $splitParams = Invoke-Command -ScriptBlock ([scriptblock]::Create("parse $CurlString"))
     if ($splitParams[0] -notin 'curl', 'curl.exe') {
-        Throw "`$curlString does not start with 'curl' or 'curl.exe', which is necessary for correct parsing."
+        Throw "`$CurlString does not start with 'curl' or 'curl.exe', which is necessary for correct parsing."
     }
     $parameters = for ($x = 1; $x -lt $splitParams.Count; $x++) {
         # If this item is a parameter name, use it
@@ -31,11 +31,18 @@ Function Invoke-Curl2PS {
             }
         } elseif ($splitParams[$x] -match '^https?\:\/\/') {
             # the url in curl is the last parameter, so we need to check if it is a valid URL
+            [System.Uri]$uri = $splitParams[$x]
+            if ($uri.UserInfo.Length -gt 0) {
+
+                ConvertTo-Curl2PSParameter -ParamName 'u' -ParamValue $uri.UserInfo
+
+                [System.Uri]$uri = $uri.OriginalString -replace "$($uri.UserInfo)@", ''
+            }
             [pscustomobject]@{
                 Type          = 'String'
                 ParameterName = 'Uri'
-                Value         = $splitParams[$x]
-            }
+                Value         = $uri.OriginalString
+            } 
         }
     }
 
@@ -97,9 +104,9 @@ Function Invoke-Curl2PS {
             $cred = $paramGroup.Group[0].Value
             if ($cred.GetNetworkCredential().Password.Length -gt 0) {
                 Write-Warning 'This output possibly includes a plaintext password, please treat this securely.'
-                $authStr = "`$cred = [PSCredential]::new('$($cred.UserName)', (ConvertTo-SecureString '$($cred.GetNetworkCredential().Password)' -AsPlainText -Force))"
+                $authStr = "`$cred = [PSCredential]::new('$($cred.UserName)', (ConvertTo-SecureString '$($cred.GetNetworkCredential().Password)' -AsPlainText -Force))`n"
             } else {
-                "`$cred = Get-Credential -UserName '$($cred.UserName)' -Message 'Please input the password for user $($cred.UserName)'"
+                "`$cred = Get-Credential -UserName '$($cred.UserName)' -Message 'Please input the password for user $($cred.UserName)'`n"
             }
             $baseStr = $authStr + $baseStr + " -Credential `$cred"
         } else {
