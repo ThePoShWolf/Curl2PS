@@ -3,7 +3,6 @@ Function Invoke-Curl2PS {
     param (
         [string]$CurlString
     )
-    $config = . .\src\config.ps1
     if ($CurlString -match "\n") {
         $arr = $CurlString -split "\n"
         $CurlString = ($arr | ForEach-Object { $_.TrimEnd('\').Trim() }) -join ' '
