@@ -8,7 +8,6 @@ Function Invoke-Curl2PS {
         $arr = $curlString -split "\n"
         $curlString = ($arr | ForEach-Object { $_.TrimEnd('\').Trim() }) -join ' '
     }
-    $method = 'Get'
 
     $splitParams = Invoke-Command -ScriptBlock ([scriptblock]::Create("parse $curlString"))
     if ($splitParams[0] -notin 'curl', 'curl.exe') {
@@ -68,6 +67,15 @@ Function Invoke-Curl2PS {
                 ParameterName = 'Uri'
                 Value         = $splitParams[$x]
             }
+        }
+    }
+
+    # if no explicit method, assume GET
+    if ($parameters.ParameterName -notcontains 'Method') {
+        $parameters += [pscustomobject]@{
+            Type          = 'String'
+            ParameterName = 'Method'
+            Value         = 'Get'
         }
     }
 
