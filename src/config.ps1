@@ -70,7 +70,13 @@
                     $user = $args[0]
                     if ($user -like '*:*') {
                         $split = $user.Split(':')
-                        [pscredential]::new($split[0], (ConvertTo-SecureString $split[1] -AsPlainText -Force))
+                        if ($split[1].Length -gt 0) {
+                            [pscredential]::new($split[0], (ConvertTo-SecureString $split[1] -AsPlainText -Force))
+                        } else {
+                            [pscredential]::new($split[0], [securestring]::new())
+                        }
+                    } else {
+                        Write-Host "Blah"
                     }
                 }
                 AdditionalParameters = @{

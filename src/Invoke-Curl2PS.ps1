@@ -147,6 +147,15 @@ Function Invoke-Curl2PS {
             $baseStr += " -$($paramGroup.Name):`$$($paramGroup.Group[0].Value.ToString().ToLower())"
         } elseif ($paramGroup[0].Group[0].Type -eq 'String') {
             $baseStr += " -$($paramGroup.Name) '$($paramGroup.Group[0].Value)'"
+        } elseif ($paramGroup[0].Group[0].Type -eq 'PSCredential') {
+            $cred = $paramGroup.Group[0].Value
+            if ($cred.GetNetworkCredential().Password.Length -gt 0) {
+                Write-Warning 'This output possibly includes a plaintext password, please treat this securely.'
+                $authStr = "`$cred = [PSCredential]::new('$($cred.UserName)', (ConvertTo-SecureString '$($cred.GetNetworkCredential().Password)' -AsPlainText -Force))"
+            } else {
+                "`$cred = Get-Credential -UserName '$($cred.UserName)' -Message 'Please input the password for user $($cred.UserName)'"
+            }
+            $baseStr = $authStr + $baseStr + " -Credential `$cred"
         } else {
             $baseStr += " -$($paramGroup.Name) $($paramGroup.Group[0].Value)"
         }
