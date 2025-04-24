@@ -51,6 +51,38 @@
             }
         }
         "verbose"  = "v"
+        "u"        = @(
+            @{
+                ParameterName = "Headers"
+                Type          = "Hashtable"
+                Value         = {
+                    $encodedAuth = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($args[0]))
+                    @{
+                        Authorization = "Basic $encodedAuth"
+                    }
+                }
+            },
+            @{
+                MinimumVersion       = "7.0"
+                ParameterName        = "Credential"
+                Type                 = "PSCredential"
+                Value                = {
+                    $user = $args[0]
+                    if ($user -like '*:*') {
+                        $split = $user.Split(':')
+                        [pscredential]::new($split[0], (ConvertTo-SecureString $split[1] -AsPlainText -Force))
+                    }
+                }
+                AdditionalParameters = @{
+                    ParameterName = "Authentication"
+                    Type          = "String"
+                    Value         = {
+                        "Basic"
+                    }
+                }
+            }
+        )
+        "user"     = "u"
     }
     Headers   = @{
         "Content-Type" = @{
