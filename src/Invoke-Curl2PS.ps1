@@ -14,7 +14,7 @@ Function Invoke-Curl2PS {
     if ($splitParams[0] -notin 'curl', 'curl.exe') {
         Throw "`$curlString does not start with 'curl' or 'curl.exe', which is necessary for correct parsing."
     }
-    for ($x = 1; $x -lt $splitParams.Count; $x++) {
+    $parameters = for ($x = 1; $x -lt $splitParams.Count; $x++) {
         # If this item is a parameter name, use it
         # The next item must be the parameter value
         # Unless the current item is a switch param
@@ -35,7 +35,7 @@ Function Invoke-Curl2PS {
                         Write-Warning "The parameter $paramName is not supported in this version of PowerShell. Minimum version required: $($config.Arguments[$paramName].MinimumVersion)"
                         continue
                     }
-                    $out = $config.Arguments[$paramName].Value.Invoke($paramValue)
+                    $out = Invoke-Command -ScriptBlock $config.Arguments[$paramName].Value -ArgumentList $paramValue
                     $data = [pscustomobject]@{
                         Type          = $config.Arguments[$paramName].Type
                         ParameterName = $config.Arguments[$paramName].ParameterName
@@ -56,6 +56,36 @@ Function Invoke-Curl2PS {
                     "Does not contain $paramName"
                 }
             }
+        } elseif ($splitParams[$x] -match '^https?\:\/\/') {
+            [pscustomobject]@{
+                Type          = 'String'
+                ParameterName = 'Uri'
+                Value         = $splitParams[$x]
+            }
         }
     }
+
+    $splat = @{}
+    foreach ($paramGroup in $parameters | Group-Object ParameterName) {
+        if ($paramGroup.Count -gt 1) {
+            Write-Host "Multiple values for parameter $($paramGroup.Name)"
+            if ($paramGroup[0].Group[0].Type -eq 'Hashtable') {
+                Write-Host 'hashtable'
+                Write-Host $($paramGroup | ConvertTo-Json -Depth 5)
+                $ht = @{}
+                foreach ($pg in $paramGroup.Group) {
+                    foreach ($key in $pg.Value.Keys) {
+                        Write-Host $key
+                        $ht[$key] = $pg.Value[$key]
+                    }
+                }
+                $splat[$paramGroup.Name] = $ht
+            } else {
+                Write-Warning "Multiple values for parameter $($paramGroup.Name) of type $($paramGroup.Group[0].TypeNames) are not supported."
+            }
+        } else {
+            $splat[$paramGroup.Name] = $paramGroup.Group[0].Value
+        }
+    }
+    $splat
 }
