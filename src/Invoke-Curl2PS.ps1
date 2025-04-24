@@ -1,7 +1,20 @@
 Function Invoke-Curl2PS {
-    [cmdletbinding()]
+    [OutputType([hashtable], ParameterSetName = 'splat')]
+    [OutputType([string], ParameterSetName = 'string')]
+    [OutputType([Curl2PSParameterDefinition[]], ParameterSetName = 'raw')]
+    [cmdletbinding(
+        DefaultParameterSetName = 'splat'
+    )]
     param (
-        [string]$CurlString
+        [string]$CurlString,
+        [Parameter(
+            ParameterSetName = 'string'
+        )]
+        [switch]$AsString,
+        [Parameter(
+            ParameterSetName = 'raw'
+        )]
+        [switch]$Raw
     )
     if ($CurlString -match "\n") {
         $arr = $CurlString -split "\n"
@@ -54,9 +67,13 @@ Function Invoke-Curl2PS {
         }
     }
 
-    # generate a splat representation of the parameters
-    ConvertTo-Curl2PSSplat -Parameters $parameters
-
-    # generate a string representation of the Invoke-RestMethod command
-    ConvertTo-Curl2PSString -Parameters $parameters
+    if ($PSCmdlet.ParameterSetName -eq 'splat') {
+        # generate a splat representation of the parameters
+        ConvertTo-Curl2PSSplat -Parameters $parameters
+    } elseif ($PSCmdlet.ParameterSetName -eq 'string') {
+        # generate a string representation of the Invoke-RestMethod command
+        ConvertTo-Curl2PSString -Parameters $parameters
+    } elseif ($PSCmdlet.ParameterSetName -eq 'raw') {
+        $parameters
+    }
 }
