@@ -23,7 +23,7 @@
             ParameterName = "Body"
             Type          = "String"
             Value         = {
-                $_.Trim() -replace '\\"', '"'
+                $args[0].Trim() -replace '\\"', '"'
             }
         }
         "data"     = "d"
@@ -31,7 +31,7 @@
             ParameterName = "Uri"
             Type          = "String"
             Value         = {
-                $_.Trim()
+                $args[0].Trim()
             }
         }
         "k"        = @{
