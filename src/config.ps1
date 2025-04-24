@@ -76,7 +76,7 @@
                             [pscredential]::new($split[0], [securestring]::new())
                         }
                     } else {
-                        Write-Host "Blah"
+                        Write-Warning "Unable to handle the user authentication value. Unrecognized format."
                     }
                 }
                 AdditionalParameters = @{
