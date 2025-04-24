@@ -38,7 +38,7 @@ Function Invoke-Curl2PS {
 
                 [System.Uri]$uri = $uri.OriginalString -replace "$($uri.UserInfo)@", ''
             }
-            [pscustomobject]@{
+            [Curl2PSParameterDefinition]@{
                 Type          = 'String'
                 ParameterName = 'Uri'
                 Value         = $uri.OriginalString
@@ -48,7 +48,7 @@ Function Invoke-Curl2PS {
 
     # if no explicit method, assume GET
     if ($parameters.ParameterName -notcontains 'Method') {
-        $parameters += [pscustomobject]@{
+        $parameters += [Curl2PSParameterDefinition]@{
             Type          = 'String'
             ParameterName = 'Method'
             Value         = 'Get'
@@ -117,6 +117,7 @@ Function Invoke-Curl2PS {
 }
 
 Function ConvertTo-Curl2PSParameter {
+    [OutputType([Curl2PSParameterDefinition])]
     param (
         [string]$ParamValue,
         [string]$ParamName
@@ -148,7 +149,7 @@ Function ConvertTo-Curl2PSParameter {
         }
         # invoke the config's script block to return the value
         $out = Invoke-Command -ScriptBlock $argConfig.Value -ArgumentList $paramValue
-        $data = [pscustomobject]@{
+        $data = [Curl2PSParameterDefinition]@{
             Type          = $argConfig.Type
             ParameterName = $argConfig.ParameterName
             Value         = $out
@@ -157,7 +158,7 @@ Function ConvertTo-Curl2PSParameter {
         if ($data.ParameterName -eq 'Headers' -and $config.Headers.Keys -contains $data.Value.Keys[0]) {
             $key = $data.Value.Keys[0]
             if ($config.Headers[$key].Keys -notcontains 'MinimumVersion' -or [version]$config.Headers[$key].MinimumVersion -lt $PSVersionTable.PSVersion) {
-                $data = [pscustomobject]@{
+                $data = [Curl2PSParameterDefinition]@{
                     Type          = $config.Headers[$key].Type
                     ParameterName = $config.Headers[$key].ParameterName
                     Value         = $data.Value.Values[0]
@@ -167,7 +168,7 @@ Function ConvertTo-Curl2PSParameter {
         $data
         if ($argConfig.AdditionalParameters) {
             foreach ($addParam in $argConfig.AdditionalParameters) {
-                [pscustomobject]@{
+                [Curl2PSParameterDefinition]@{
                     Type          = $addParam.Type
                     ParameterName = $addParam.ParameterName
                     Value         = Invoke-Command -ScriptBlock $addParam.Value -ArgumentList $paramValue
