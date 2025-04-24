@@ -1,6 +1,6 @@
 @{
     ParameterTransformers = @{
-        "H"        = @{
+        "H"        = [Curl2PSParameterTransformer]@{
             ParameterName = "Headers"
             Type          = "Hashtable"
             Value         = {
@@ -11,7 +11,7 @@
             }
         }
         "header"   = "H"
-        "X"        = @{
+        "X"        = [Curl2PSParameterTransformer]@{
             ParameterName = "Method"
             Type          = "String"
             Value         = {
@@ -19,7 +19,7 @@
             }
         }
         "request"  = "X"
-        "d"        = @{
+        "d"        = [Curl2PSParameterTransformer]@{
             ParameterName = "Body"
             Type          = "String"
             Value         = {
@@ -27,14 +27,14 @@
             }
         }
         "data"     = "d"
-        "url"      = @{
+        "url"      = [Curl2PSParameterTransformer]@{
             ParameterName = "Uri"
             Type          = "String"
             Value         = {
                 $args[0].Trim()
             }
         }
-        "k"        = @{
+        "k"        = [Curl2PSParameterTransformer]@{
             MinimumVersion = "6.0"
             ParameterName  = "SkipCertificateCheck"
             Type           = "Switch"
@@ -43,7 +43,7 @@
             }
         }
         "insecure" = "k"
-        "v"        = @{
+        "v"        = [Curl2PSParameterTransformer]@{
             ParameterName = "Verbose"
             Type          = "Switch"
             Value         = {
@@ -52,7 +52,7 @@
         }
         "verbose"  = "v"
         "u"        = @(
-            @{
+            [Curl2PSParameterTransformer]@{
                 ParameterName = "Headers"
                 Type          = "Hashtable"
                 Value         = {
@@ -62,7 +62,7 @@
                     }
                 }
             },
-            @{
+            [Curl2PSParameterTransformer]@{
                 MinimumVersion       = "7.0"
                 ParameterName        = "Credential"
                 Type                 = "PSCredential"
