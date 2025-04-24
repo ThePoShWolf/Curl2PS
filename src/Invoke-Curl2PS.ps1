@@ -41,13 +41,13 @@ Function Invoke-Curl2PS {
                         ParameterName = $config.Arguments[$paramName].ParameterName
                         Value         = $out
                     }
-                    if ($data.ParameterName -eq 'Headers' -and $config.Headers.Keys -contains $data.Value[0].Keys[0]) {
-                        $key = $data.Value[0].Keys[0]
+                    if ($data.ParameterName -eq 'Headers' -and $config.Headers.Keys -contains $data.Value.Keys[0]) {
+                        $key = $data.Value.Keys[0]
                         if ($config.Headers[$key].Keys -notcontains 'MinimumVersion' -or [version]$config.Headers[$key].MinimumVersion -lt $PSVersionTable.PSVersion) {
                             $data = [pscustomobject]@{
                                 Type          = $config.Headers[$key].Type
                                 ParameterName = $config.Headers[$key].ParameterName
-                                Value         = $data.Value[0].Values[0]
+                                Value         = $data.Value.Values[0]
                             }
                         }
                     }
@@ -68,14 +68,10 @@ Function Invoke-Curl2PS {
     $splat = @{}
     foreach ($paramGroup in $parameters | Group-Object ParameterName) {
         if ($paramGroup.Count -gt 1) {
-            Write-Host "Multiple values for parameter $($paramGroup.Name)"
             if ($paramGroup[0].Group[0].Type -eq 'Hashtable') {
-                Write-Host 'hashtable'
-                Write-Host $($paramGroup | ConvertTo-Json -Depth 5)
                 $ht = @{}
                 foreach ($pg in $paramGroup.Group) {
                     foreach ($key in $pg.Value.Keys) {
-                        Write-Host $key
                         $ht[$key] = $pg.Value[$key]
                     }
                 }
@@ -88,4 +84,33 @@ Function Invoke-Curl2PS {
         }
     }
     $splat
+
+    $baseStr = "Invoke-RestMethod -Uri '$($splat.Uri)' -Method $($splat.Method)"
+    foreach ($paramGroup in $parameters | Group-Object ParameterName) {
+        if ($('Uri', 'Method') -contains $paramGroup.Name) {
+            continue
+        }
+        if ($paramGroup.Count -gt 1) {
+            if ($paramGroup[0].Group[0].Type -eq 'Hashtable') {
+                $ht = @{}
+                foreach ($pg in $paramGroup.Group) {
+                    foreach ($key in $pg.Value.Keys) {
+                        $ht[$key] = $pg.Value[$key]
+                    }
+                }
+                $baseStr += " -$($paramGroup.Name) $(ConvertTo-HashtableString $ht)"
+            } else {
+                Write-Warning "Multiple values for parameter $($paramGroup.Name) of type $($paramGroup.Group[0].TypeNames) are not supported."
+            }
+        } elseif ($paramGroup[0].Group[0].Type -eq 'Hashtable') {
+            $baseStr += " -$($paramGroup.Name) $(ConvertTo-HashtableString $paramGroup.Group[0].Value)"
+        } elseif ($paramGroup[0].Group[0].Type -eq 'Switch') {
+            $baseStr += " -$($paramGroup.Name):`$$($paramGroup.Group[0].Value.ToString().ToLower())"
+        } elseif ($paramGroup[0].Group[0].Type -eq 'String') {
+            $baseStr += " -$($paramGroup.Name) '$($paramGroup.Group[0].Value)'"
+        } else {
+            $baseStr += " -$($paramGroup.Name) $($paramGroup.Group[0].Value)"
+        }
+    }
+    $baseStr
 }
