@@ -27,61 +27,7 @@ Function Invoke-Curl2PS {
             # grab the value
             $paramValue = $splitParams[$x + 1]
             foreach ($paramName in $paramNames) {
-                if ($config.Arguments.Keys -ccontains $paramName) {
-                    # if the argument value is a string, locate the correct argument in the config
-                    if ($config.Arguments[$paramName] -is [string]) {
-                        $paramName = $config.Arguments[$paramName]
-                    }
-                    # if the argument is an array, get the one with highest met minimum version
-                    if ($config.Arguments[$paramName] -is [array]) {
-                        $argConfig = $null
-                        foreach ($argument in $config.Arguments[$paramName]) {
-                            if ($null -eq $argConfig -and -not $argument.MinimumVersion) {
-                                $argConfig = $argument
-                            }
-                            if ($argument.MinimumVersion -and [version]$argument.MinimumVersion -lt $PSVersionTable.PSVersion -and $argument.MinimumVersion -gt $argConfig.MinimumVersion) {
-                                $argConfig = $argument
-                            }
-                        }
-                    } else {
-                        $argConfig = $config.Arguments[$paramName]
-                    }
-                    # minimum version check (i.e. SkipCertificateCheck)
-                    if ($argConfig.MinimumVersion -and [version]$argConfig.MinimumVersion -gt $PSVersionTable.PSVersion) {
-                        Write-Warning "The parameter $paramName is not supported in this version of PowerShell. Minimum version required: $($argConfig.MinimumVersion)"
-                        continue
-                    }
-                    # invoke the config's script block to return the value
-                    $out = Invoke-Command -ScriptBlock $argConfig.Value -ArgumentList $paramValue
-                    $data = [pscustomobject]@{
-                        Type          = $argConfig.Type
-                        ParameterName = $argconfig.ParameterName
-                        Value         = $out
-                    }
-                    # headers are a special case, as they are a hashtable of key/value pairs and sometimes represent other parameters for Invoke-RestMethod
-                    if ($data.ParameterName -eq 'Headers' -and $config.Headers.Keys -contains $data.Value.Keys[0]) {
-                        $key = $data.Value.Keys[0]
-                        if ($config.Headers[$key].Keys -notcontains 'MinimumVersion' -or [version]$config.Headers[$key].MinimumVersion -lt $PSVersionTable.PSVersion) {
-                            $data = [pscustomobject]@{
-                                Type          = $config.Headers[$key].Type
-                                ParameterName = $config.Headers[$key].ParameterName
-                                Value         = $data.Value.Values[0]
-                            }
-                        }
-                    }
-                    $data
-                    if ($argConfig.AdditionalParameters) {
-                        foreach ($addParam in $argConfig.AdditionalParameters) {
-                            [pscustomobject]@{
-                                Type          = $addParam.Type
-                                ParameterName = $addParam.ParameterName
-                                Value         = Invoke-Command -ScriptBlock $addParam.Value -ArgumentList $paramValue
-                            }
-                        }
-                    }
-                } else {
-                    "Does not contain $paramName"
-                }
+                ConvertTo-Curl2PSParameter -ParamName $paramName -ParamValue $paramValue
             }
         } elseif ($splitParams[$x] -match '^https?\:\/\/') {
             # the url in curl is the last parameter, so we need to check if it is a valid URL
@@ -161,4 +107,67 @@ Function Invoke-Curl2PS {
         }
     }
     $baseStr
+}
+
+Function ConvertTo-Curl2PSParameter {
+    param (
+        [string]$ParamValue,
+        [string]$ParamName
+    )
+    $config = . .\src\config.ps1
+    if ($config.Arguments.Keys -ccontains $paramName) {
+        # if the argument value is a string, locate the correct argument in the config
+        if ($config.Arguments[$paramName] -is [string]) {
+            $paramName = $config.Arguments[$paramName]
+        }
+        # if the argument is an array, get the one with highest met minimum version
+        if ($config.Arguments[$paramName] -is [array]) {
+            $argConfig = $null
+            foreach ($argument in $config.Arguments[$paramName]) {
+                if ($null -eq $argConfig -and -not $argument.MinimumVersion) {
+                    $argConfig = $argument
+                }
+                if ($argument.MinimumVersion -and [version]$argument.MinimumVersion -lt $PSVersionTable.PSVersion -and $argument.MinimumVersion -gt $argConfig.MinimumVersion) {
+                    $argConfig = $argument
+                }
+            }
+        } else {
+            $argConfig = $config.Arguments[$paramName]
+        }
+        # minimum version check (i.e. SkipCertificateCheck)
+        if ($argConfig.MinimumVersion -and [version]$argConfig.MinimumVersion -gt $PSVersionTable.PSVersion) {
+            Write-Warning "The parameter $paramName is not supported in this version of PowerShell. Minimum version required: $($argConfig.MinimumVersion)"
+            continue
+        }
+        # invoke the config's script block to return the value
+        $out = Invoke-Command -ScriptBlock $argConfig.Value -ArgumentList $paramValue
+        $data = [pscustomobject]@{
+            Type          = $argConfig.Type
+            ParameterName = $argConfig.ParameterName
+            Value         = $out
+        }
+        # headers are a special case, as they are a hashtable of key/value pairs and sometimes represent other parameters for Invoke-RestMethod
+        if ($data.ParameterName -eq 'Headers' -and $config.Headers.Keys -contains $data.Value.Keys[0]) {
+            $key = $data.Value.Keys[0]
+            if ($config.Headers[$key].Keys -notcontains 'MinimumVersion' -or [version]$config.Headers[$key].MinimumVersion -lt $PSVersionTable.PSVersion) {
+                $data = [pscustomobject]@{
+                    Type          = $config.Headers[$key].Type
+                    ParameterName = $config.Headers[$key].ParameterName
+                    Value         = $data.Value.Values[0]
+                }
+            }
+        }
+        $data
+        if ($argConfig.AdditionalParameters) {
+            foreach ($addParam in $argConfig.AdditionalParameters) {
+                [pscustomobject]@{
+                    Type          = $addParam.Type
+                    ParameterName = $addParam.ParameterName
+                    Value         = Invoke-Command -ScriptBlock $addParam.Value -ArgumentList $paramValue
+                }
+            }
+        }
+    } else {
+        "Does not contain $paramName"
+    }
 }
