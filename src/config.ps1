@@ -1,5 +1,5 @@
 @{
-    Arguments = @{
+    ParameterTransformers = @{
         "H"        = @{
             ParameterName = "Headers"
             Type          = "Hashtable"
@@ -90,7 +90,7 @@
         )
         "user"     = "u"
     }
-    Headers   = @{
+    Headers               = @{
         "Content-Type" = @{
             MinimumVersion = "7.0"
             ParameterName  = "ContentType"

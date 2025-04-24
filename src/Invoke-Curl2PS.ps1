@@ -122,15 +122,15 @@ Function ConvertTo-Curl2PSParameter {
         [string]$ParamName
     )
     $config = . .\src\config.ps1
-    if ($config.Arguments.Keys -ccontains $paramName) {
+    if ($config.ParameterTransformers.Keys -ccontains $paramName) {
         # if the argument value is a string, locate the correct argument in the config
-        if ($config.Arguments[$paramName] -is [string]) {
-            $paramName = $config.Arguments[$paramName]
+        if ($config.ParameterTransformers[$paramName] -is [string]) {
+            $paramName = $config.ParameterTransformers[$paramName]
         }
         # if the argument is an array, get the one with highest met minimum version
-        if ($config.Arguments[$paramName] -is [array]) {
+        if ($config.ParameterTransformers[$paramName] -is [array]) {
             $argConfig = $null
-            foreach ($argument in $config.Arguments[$paramName]) {
+            foreach ($argument in $config.ParameterTransformers[$paramName]) {
                 if ($null -eq $argConfig -and -not $argument.MinimumVersion) {
                     $argConfig = $argument
                 }
@@ -139,7 +139,7 @@ Function ConvertTo-Curl2PSParameter {
                 }
             }
         } else {
-            $argConfig = $config.Arguments[$paramName]
+            $argConfig = $config.ParameterTransformers[$paramName]
         }
         # minimum version check (i.e. SkipCertificateCheck)
         if ($argConfig.MinimumVersion -and [version]$argConfig.MinimumVersion -gt $PSVersionTable.PSVersion) {
