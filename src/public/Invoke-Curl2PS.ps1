@@ -6,6 +6,10 @@ Function Invoke-Curl2PS {
         DefaultParameterSetName = 'splat'
     )]
     param (
+        [Parameter(
+            Mandatory,
+            Position = 0
+        )]
         [string]$CurlString,
         [Parameter(
             ParameterSetName = 'string'
