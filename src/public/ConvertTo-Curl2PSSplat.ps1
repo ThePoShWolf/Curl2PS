@@ -1,6 +1,10 @@
 Function ConvertTo-Curl2PSSplat {
     [OutputType([hashtable])]
     param (
+        [Parameter(
+            Mandatory,
+            ValueFromPipeline
+        )]
         [Curl2PSParameterDefinition[]]$Parameters
     )
     $splat = @{}

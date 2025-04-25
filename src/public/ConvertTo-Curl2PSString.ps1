@@ -1,6 +1,10 @@
 Function ConvertTo-Curl2PSString {
     [OutputType([string])]
     param (
+        [Parameter(
+            Mandatory,
+            ValueFromPipeline
+        )]
         [Curl2PSParameterDefinition[]]$Parameters
     )
     $uri = $Parameters | Where-Object { $_.ParameterName -eq 'Uri' } | Select-Object -First 1
