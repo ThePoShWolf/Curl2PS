@@ -21,6 +21,12 @@ Describe 'Invoke-Curl2PS' {
     Describe 'Header curl: curl -H "X-Auth-Key: authKey" -H "X-Auth-Workspace: authWorkspace" -H "X-Auth-Signature: " -H "Content-Type: application/json" -H "Accept: application/json" -X POST https://theposhwolf.com' {
         BeforeAll {
             $curlString = 'curl -H "X-Auth-Key: authKey" -H "X-Auth-Workspace: authWorkspace" -H "X-Auth-Signature: " -H "Content-Type: application/json" -H "Accept: application/json" -X POST https://theposhwolf.com'
+            $expectedHeaders = @{
+                'X-Auth-Key'       = 'authKey'
+                'X-Auth-Workspace' = 'authWorkspace'
+                'X-Auth-Signature' = ''
+                'Accept'           = 'application/json'
+            }
             $ht = Invoke-Curl2PS -CurlString $curlString
         }
         It 'outputs as a hashtable' {
@@ -32,10 +38,9 @@ Describe 'Invoke-Curl2PS' {
             $ht.Keys | Should -Contain 'Headers'
         }
         It 'has the expected headers' {
-            $ht['Headers'].Keys | Should -Contain 'X-Auth-Key'
-            $ht['Headers'].Keys | Should -Contain 'X-Auth-Workspace'
-            $ht['Headers'].Keys | Should -Contain 'X-Auth-Signature'
-            $ht['Headers'].Keys | Should -Contain 'Accept'
+            foreach ($key in $expectedHeaders.Keys) {
+                $ht['Headers'].Keys | Should -Contain $key
+            }
         }
         It 'has a ContentType parameter' {
             if ($PSVersionTable.PSVersion -gt [version]'7.0.0') {
@@ -45,10 +50,9 @@ Describe 'Invoke-Curl2PS' {
             }
         }
         It 'has headers with expected values' {
-            $ht['Headers']['X-Auth-Key'] | Should -BeExactly 'authKey'
-            $ht['Headers']['X-Auth-Workspace'] | Should -BeExactly 'authWorkspace'
-            $ht['Headers']['X-Auth-Signature'] | SHould -BeExactly ''
-            $ht['Headers']['Accept'] | Should -BeExactly 'application/json'
+            foreach ($key in $expectedHeaders.Keys) {
+                $ht['Headers'][$key] | Should -BeExactly $expectedHeaders[$key]
+            }
         }
         It 'has the expected uri' {
             $ht['Uri'] | Should -BeExactly 'https://theposhwolf.com'
