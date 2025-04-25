@@ -41,7 +41,7 @@ Function Invoke-Curl2PS {
             foreach ($paramName in $paramNames) {
                 ConvertTo-Curl2PSParameter -ParamName $paramName -ParamValue $paramValue
             }
-        } elseif ($splitParams[$x] -match '^https?\:\/\/') {
+        } elseif ($splitParams[$x].Trim() -match '^https?\:\/\/') {
             # the url in curl is the last parameter, so we need to check if it is a valid URL
             [System.Uri]$uri = $splitParams[$x]
             if ($uri.UserInfo.Length -gt 0) {
