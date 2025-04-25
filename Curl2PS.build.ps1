@@ -67,14 +67,6 @@ task ModuleBuild Clean, {
         }
     }
 
-    <# Copy dll dependencies
-    if (-not (Test-Path $modulePath\dependencies)) {
-        New-Item "$modulePath\dependencies" -ItemType Directory
-    }
-    foreach ($dll in (Get-ChildItem $srcPath\dependencies -Filter *.dll -File)) {
-        Copy-Item $dll.FullName -Destination $modulePath\dependencies
-    }#>
-
     # Copy the manifest
     Copy-Item "$srcPath\$moduleName.psd1" -Destination $modulePath
 
@@ -101,8 +93,7 @@ task Test ModuleBuild, {
         $config.TestResult.Enabled = $true
         $config.TestResult.OutputFormat = 'JUnitXml'
         Invoke-Pester -Configuration $config
-    }
-    else {
+    } else {
         Invoke-Pester -Configuration $config
     }
 }

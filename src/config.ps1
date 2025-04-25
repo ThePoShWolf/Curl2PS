@@ -1,4 +1,4 @@
-@{
+$script:config = @{
     ParameterTransformers = @{
         "H"        = [Curl2PSParameterTransformer]@{
             ParameterName = "Headers"
