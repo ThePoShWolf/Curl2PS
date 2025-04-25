@@ -15,7 +15,7 @@ Function ConvertTo-Curl2PSSplat {
                 }
                 $splat[$paramGroup.Name] = $ht
             } else {
-                Write-Warning "Multiple values for parameter $($paramGroup.Name) of type $($paramGroup.Group[0].TypeNames) are not supported."
+                Write-Warning "Multiple values for parameter $($paramGroup.Name) of type '$($paramGroup.Group[0].Type)' are not supported."
             }
         } else {
             $splat[$paramGroup.Name] = $paramGroup.Group[0].Value

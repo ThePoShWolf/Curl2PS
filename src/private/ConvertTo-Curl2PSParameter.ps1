@@ -58,6 +58,6 @@ Function ConvertTo-Curl2PSParameter {
             }
         }
     } else {
-        "Does not contain $paramName"
+        Write-Warning "'$paramName' has not yet been implemented."
     }
 }
