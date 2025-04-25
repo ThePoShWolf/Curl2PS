@@ -4,7 +4,6 @@ Function ConvertTo-Curl2PSParameter {
         [string]$ParamValue,
         [string]$ParamName
     )
-    $config = . .\src\config.ps1
     if ($config.ParameterTransformers.Keys -ccontains $paramName) {
         # if the argument value is a string, locate the correct argument in the config
         $ogParamName = $paramName
