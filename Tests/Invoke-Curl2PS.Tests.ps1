@@ -19,6 +19,26 @@ Describe 'Invoke-Curl2PS' {
         }
     }
 
+    Describe "Simple curl with .exe: 'curl.exe https://theposhwolf.com" {
+        BeforeAll {
+            $curlString = 'curl.exe https://theposhwolf.com'
+            $ht = Invoke-Curl2PS -CurlString $curlString
+        }
+        It 'outputs as a hashtable' {
+            $ht | Should -Be 'System.Collections.Hashtable'
+        }
+        It 'contains both a Method and a Uri' {
+            $ht.Keys | Should -Contain 'Method'
+            $ht.Keys | Should -Contain 'Uri'
+        }
+        It 'the method is Get' {
+            $ht['Method'] | Should -BeExactly 'Get'
+        }
+        It 'the Uri is https://theposhwolf.com' {
+            $ht['Uri'] | Should -BeExactly 'https://theposhwolf.com'
+        }
+    }
+
     Describe 'Header curl: curl -H "X-Auth-Key: authKey" -H "X-Auth-Workspace: authWorkspace" -H "X-Auth-Signature: " -H "Content-Type: application/json" -H "Accept: application/json" -X POST https://theposhwolf.com' {
         BeforeAll {
             $curlString = 'curl -H "X-Auth-Key: authKey" -H "X-Auth-Workspace: authWorkspace" -H "X-Auth-Signature: " -H "Content-Type: application/json" -H "Accept: application/json" -X POST https://theposhwolf.com'
@@ -111,4 +131,89 @@ Describe 'Invoke-Curl2PS' {
             }
         }
     }
+
+    Describe 'User curl 2: curl https://user:password@theposhwolf.com' {
+        BeforeAll {
+            $curlString = 'curl https://user:password@theposhwolf.com'
+            $credential = [pscredential]::new('user', (ConvertTo-SecureString 'password' -AsPlainText -Force))
+            $ht = Invoke-Curl2PS -CurlString $curlString
+        }
+        It 'has the expected uri' {
+            $ht['Uri'] | Should -BeExactly 'https://theposhwolf.com'
+        }
+        It 'has the expected method' {
+            $ht['Method'] | Should -BeExactly 'Get'
+        }
+        It 'has the expected user format' {
+            if ($PSVersionTable.PSVersion -gt [version]'7.0') {
+                $ht.Keys | Should -Contain 'Credential'
+                $ht.Keys | Should -Contain 'Authentication'
+
+                $ht['Credential'].UserName | Should -BeExactly 'user'
+                $ht['Credential'].GetNetworkCredential().Password | Should -BeExactly 'password'
+
+                $ht['Authentication'] | Should -BeExactly 'Basic'
+            } else {
+                $ht.Keys | Should -Contain 'Headers'
+                $ht['Headers'].Keys | Should -Contain 'Authorization'
+                $ht['Headers']['Authorization'] | Should -BeExactly 'Basic dXNlcjpwYXNzd29yZA=='
+            }
+        }
+    }
+
+    Describe 'Form curl: curl -F "filename=@cygdrive/c/tmp/test.txt" -F ''options={"application":"2","timeout":"500","priority":"0","profiles":["win7-sp1"],"analysistype":"1","force":"true","prefetch":"0", "properties":{"application_context":{"file_name":"xyz.pdf"}}}'' -X POST https://theposhwolf.com' {
+        BeforeAll {
+            $curlString = @'
+curl -F "filename=@cygdrive/c/tmp/test.txt" -F 'options={"application":"2","timeout":"500","priority":"0","profiles":["win7-sp1"],"analysistype":"1","force":"true","prefetch":"0", "properties":{"application_context":{"file_name":"xyz.pdf"}}}' -X POST https://theposhwolf.com
+'@
+            $ht = Invoke-Curl2PS -CurlString $curlString
+            $expectedForm = @{
+                'filename' = 'Get-Item cygdrive/c/tmp/test.txt'
+                'options'  = @{
+                    'analysistype' = '1'
+                    'application'  = '2'
+                    'force'        = 'true'
+                    'prefetch'     = '0'
+                    'priority'     = '0'
+                    'profiles'     = 'win7-sp1'
+                    'properties'   = @{
+                        'application_context' = @{
+                            'file_name' = 'xyz.pdf'
+                        }
+                    }
+                    'timeout'      = '500'
+                }
+            } 
+        }
+        It 'has the expected uri' {
+            $ht['Uri'] | Should -BeExactly 'https://theposhwolf.com'
+        }
+        It 'has the expected method' {
+            $ht['Method'] | Should -BeExactly 'POST'
+        }
+        It 'has the expected form data' {
+            if ($PSVersionTable.PSVersion -gt [version]'7.0') {
+                $ht.Keys | Should -Contain 'Form'
+                foreach ($key in $expectedForm.Keys) {
+                    $ht['Form'].Keys | Should -Contain $key
+                    if ($expectedForm[$key] -isnot [hashtable]) {
+                        $ht['Form'][$key] | Should -Be $expectedForm[$key]
+                    }
+                }
+                foreach ($key in $expectedForm['options'].Keys) {
+                    $ht['Form']['options'].Keys | Should -Contain $key
+                    if ($expectedForm['options'][$key] -isnot [hashtable]) {
+                        $ht['Form']['options'][$key] | Should -Be $expectedForm['options'][$key]
+                    }
+                }
+                $ht['Form']['options'].Keys | Should -Contain 'properties'
+                $ht['Form']['options']['properties'].Keys | Should -Contain 'application_context'
+                $ht['Form']['options']['properties']['application_context'].Keys | Should -Contain 'file_name'
+                $ht['Form']['options']['properties']['application_context']['file_name'] | Should -Be 'xyz.pdf'
+            } else {
+                Write-Warning 'Curl2PS does not support -F / --form conversion for PowerShell versions less than 7.0.'
+            }
+        }
+    }
+
 }
