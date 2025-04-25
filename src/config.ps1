@@ -89,6 +89,24 @@
             }
         )
         "user"     = "u"
+        "F"        = [Curl2PSParameterTransformer]@{
+            MinimumVersion = "7.0"
+            ParameterName  = "Form"
+            Type           = "Hashtable"
+            Value          = {
+                $ht = @{}
+                $formData = $args[0].TrimStart('"').TrimEnd('"')
+                $split = $formData.Split('=')
+                $split[1] = $split[1] -replace '@', 'Get-Item '
+                if ($split[1] -like '{*}') {
+                    $ht[$split[0]] = $split[1] | ConvertFrom-Json -AsHashtable
+                } else {
+                    $ht[$split[0]] = $split[1]
+                }
+                $ht
+            }
+        }
+        "form"     = "F"
     }
     Headers               = @{
         "Content-Type" = @{
