@@ -29,7 +29,7 @@ Function Invoke-Curl2PS {
     if ($splitParams[0] -notin 'curl', 'curl.exe') {
         Throw "`$CurlString does not start with 'curl' or 'curl.exe', which is necessary for correct parsing."
     }
-    $parameters = for ($x = 1; $x -lt $splitParams.Count; $x++) {
+    [Curl2PSParameterDefinition[]]$parameters = for ($x = 1; $x -lt $splitParams.Count; $x++) {
         # If this item is a parameter name, use it
         # The next item must be the parameter value
         # Unless the current item is a switch param
