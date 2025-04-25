@@ -8,7 +8,8 @@ Describe 'Invoke-Curl2PS' {
             $ht | Should -Be 'System.Collections.Hashtable'
         }
         It 'contains both a Method and a Uri' {
-            $ht.Keys | Should -BeExactly @('Method', 'Uri')
+            $ht.Keys | Should -Contain 'Method'
+            $ht.Keys | Should -Contain 'Uri'
         }
         It 'the method is Get' {
             $ht['Method'] | Should -BeExactly 'Get'
@@ -28,6 +29,12 @@ Describe 'Invoke-Curl2PS' {
                 'Accept'           = 'application/json'
             }
             $ht = Invoke-Curl2PS -CurlString $curlString
+        }
+        It 'has the expected uri' {
+            $ht['Uri'] | Should -BeExactly 'https://theposhwolf.com'
+        }
+        It 'has the expected method' {
+            $ht['Method'] | Should -BeExactly 'POST'
         }
         It 'outputs as a hashtable' {
             $ht | Should -Be 'System.Collections.Hashtable'
@@ -54,11 +61,54 @@ Describe 'Invoke-Curl2PS' {
                 $ht['Headers'][$key] | Should -BeExactly $expectedHeaders[$key]
             }
         }
+    }
+
+    Describe "Data curl: curl -d '{ `"drink`": `"coffee`" }' --header `"Content-Type: application/json`" --header `"Accept: application/json`" https://theposhwolf.com" {
+        BeforeAll {
+            $curlString = "curl -d '{ `"drink`": `"coffee`" }' --header `"Content-Type: application/json`" --header `"Accept: application/json`" --request POST https://theposhwolf.com"
+            $expectedHeaders = @{
+                'Accept' = 'application/json'
+            }
+            $expectedBody = '{ "drink": "coffee" }'
+            $ht = Invoke-Curl2PS -CurlString $curlString
+        }
         It 'has the expected uri' {
             $ht['Uri'] | Should -BeExactly 'https://theposhwolf.com'
         }
         It 'has the expected method' {
             $ht['Method'] | Should -BeExactly 'POST'
+        }
+        It 'has the expected body' {
+            $ht['Body'] | Should -BeExactly $expectedBody
+        }
+    }
+
+    Describe 'User curl: curl -u "user:password" https://theposhwolf.com' {
+        BeforeAll {
+            $curlString = 'curl -u "user:password" https://theposhwolf.com'
+            $credential = [pscredential]::new('user', (ConvertTo-SecureString 'password' -AsPlainText -Force))
+            $ht = Invoke-Curl2PS -CurlString $curlString
+        }
+        It 'has the expected uri' {
+            $ht['Uri'] | Should -BeExactly 'https://theposhwolf.com'
+        }
+        It 'has the expected method' {
+            $ht['Method'] | Should -BeExactly 'Get'
+        }
+        It 'has the expected user format' {
+            if ($PSVersionTable.PSVersion -gt [version]'7.0') {
+                $ht.Keys | Should -Contain 'Credential'
+                $ht.Keys | Should -Contain 'Authentication'
+
+                $ht['Credential'].UserName | Should -BeExactly 'user'
+                $ht['Credential'].GetNetworkCredential().Password | Should -BeExactly 'password'
+
+                $ht['Authentication'] | Should -BeExactly 'Basic'
+            } else {
+                $ht.Keys | Should -Contain 'Headers'
+                $ht['Headers'].Keys | Should -Contain 'Authorization'
+                $ht['Headers']['Authorization'] | Should -BeExactly 'Basic dXNlcjpwYXNzd29yZA=='
+            }
         }
     }
 }
