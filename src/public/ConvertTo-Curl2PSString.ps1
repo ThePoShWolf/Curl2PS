@@ -3,7 +3,9 @@ Function ConvertTo-Curl2PSString {
     param (
         [Curl2PSParameterDefinition[]]$Parameters
     )
-    $baseStr = "Invoke-RestMethod -Uri '$($splat.Uri)' -Method $($splat.Method)"
+    $uri = $Parameters | Where-Object { $_.ParameterName -eq 'Uri' } | Select-Object -First 1
+    $method = $Parameters | Where-Object { $_.ParameterName -eq 'Method' } | Select-Object -First 1
+    $baseStr = "Invoke-RestMethod -Uri '$($uri.Value)' -Method $($method.Value)"
     foreach ($paramGroup in $parameters | Group-Object ParameterName) {
         if ($('Uri', 'Method') -contains $paramGroup.Name) {
             continue
