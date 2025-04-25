@@ -3,6 +3,7 @@ Class Curl2PSParameterTransformer {
     [string]$ParameterName
     [string]$Type
     [scriptblock]$Value
+    [string]$Warning
     [Curl2PSParameterTransformer]$AdditionalParameters
 
     Curl2PSArgumentDefinition() {}

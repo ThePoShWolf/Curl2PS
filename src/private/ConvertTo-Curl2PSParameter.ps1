@@ -7,6 +7,7 @@ Function ConvertTo-Curl2PSParameter {
     $config = . .\src\config.ps1
     if ($config.ParameterTransformers.Keys -ccontains $paramName) {
         # if the argument value is a string, locate the correct argument in the config
+        $ogParamName = $paramName
         if ($config.ParameterTransformers[$paramName] -is [string]) {
             $paramName = $config.ParameterTransformers[$paramName]
         }
@@ -26,7 +27,7 @@ Function ConvertTo-Curl2PSParameter {
         }
         # minimum version check (i.e. SkipCertificateCheck)
         if ($argConfig.MinimumVersion -and [version]$argConfig.MinimumVersion -gt $PSVersionTable.PSVersion) {
-            Write-Warning "The parameter $paramName is not supported in this version of PowerShell. Minimum version required: $($argConfig.MinimumVersion)"
+            Write-Warning "The parameter $ogParamName is not supported in this version of PowerShell. Minimum version required: $($argConfig.MinimumVersion)"
             continue
         }
         # invoke the config's script block to return the value
@@ -56,6 +57,9 @@ Function ConvertTo-Curl2PSParameter {
                     Value         = Invoke-Command -ScriptBlock $addParam.Value -ArgumentList $paramValue
                 }
             }
+        }
+        if ($argConfig.Warning.Length -gt 0) {
+            Write-Warning "For param '$($ogParamName)': $($argConfig.Warning)"
         }
     } else {
         Write-Warning "'$paramName' has not yet been implemented."
