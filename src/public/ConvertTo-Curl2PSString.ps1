@@ -22,12 +22,12 @@ Function ConvertTo-Curl2PSString {
                         $ht[$key] = $pg.Value[$key]
                     }
                 }
-                $baseStr += " -$($paramGroup.Name) $(ConvertTo-HashtableString $ht)"
+                $baseStr += " -$($paramGroup.Name) $(ConvertTo-HashtableString $ht -IsForm:($paramGroup[0].Group[0].ParameterName -eq 'Form'))"
             } else {
                 Write-Warning "Multiple values for parameter $($paramGroup.Name) of type $($paramGroup.Group[0].TypeNames) are not supported."
             }
         } elseif ($paramGroup[0].Group[0].Type -eq 'Hashtable') {
-            $baseStr += " -$($paramGroup.Name) $(ConvertTo-HashtableString $paramGroup.Group[0].Value)"
+            $baseStr += " -$($paramGroup.Name) $(ConvertTo-HashtableString $paramGroup.Group[0].Value -IsForm:($paramGroup[0].Group[0].ParameterName -eq 'Form'))"
         } elseif ($paramGroup[0].Group[0].Type -eq 'Switch') {
             $baseStr += " -$($paramGroup.Name):`$$($paramGroup.Group[0].Value.ToString().ToLower())"
         } elseif ($paramGroup[0].Group[0].Type -eq 'String') {

@@ -1,7 +1,8 @@
 Function ConvertTo-HashtableString {
     param (
         [Hashtable]$InputObject,
-        [int]$Depth = 0
+        [int]$Depth = 0,
+        [switch]$IsForm
     )
     $strKeys = @()
     $indent = "    " * $Depth  # Indentation based on depth
@@ -13,7 +14,11 @@ Function ConvertTo-HashtableString {
             $strKeys += "$indent    '$key' = $nestedHashtableString"
         } else {
             # depth based nesting
-            $strKeys += "$indent    '$key' = '$value'"
+            if ($IsForm.IsPresent -and $value -like 'Get-Item *') {
+                $strKeys += "$indent    '$key' = $value"
+            } else {
+                $strKeys += "$indent    '$key' = '$value'"
+            }
         }
     }
     $str = "$indent@{`n" + ($strKeys -join "`n") + "`n$indent}"
