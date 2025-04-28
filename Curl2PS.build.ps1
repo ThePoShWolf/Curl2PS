@@ -87,7 +87,7 @@ task Test ModuleBuild, {
     Import-Module $modulePath -RequiredVersion $version
     Write-Host "Invoking tests."
     $config = New-PesterConfiguration
-    $config.Run.Path = '.\Tests'
+    $config.Run.Path = $testPath
     if ($Workflow.IsPresent) {
         $config.Output.CIFormat = 'GithubActions'
         $config.TestResult.Enabled = $true
