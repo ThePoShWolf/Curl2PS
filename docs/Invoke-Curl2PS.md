@@ -76,8 +76,18 @@ $string = $rawParams | ConvertTo-Curl2PSString
 ## PARAMETERS
 
 ### -CurlString
-The cURL command string to be converted.
-This must start with \`curl\` or \`curl.exe\` for proper parsing.
+The cURL command string to be converted. This must start with \`curl\` or \`curl.exe\` for proper parsing.
+
+If a parameter is enclosed in double quotes and also contains double quotes (i.e.: -d "{\"key\": \"value\"}"), then the full string should be enclosed in `@''@` and that string in single quotes.
+
+Example:
+
+```powershell
+$curlString = @'
+curl -d '{\"key\": \"value\"}' https://theposhwolf.com
+'@
+Invoke-Curl2PS $curlString
+```
 
 ```yaml
 Type: String
