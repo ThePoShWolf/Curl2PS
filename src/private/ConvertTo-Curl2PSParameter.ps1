@@ -61,6 +61,6 @@ Function ConvertTo-Curl2PSParameter {
             Write-Warning "For param '$($ogParamName)': $($argConfig.Warning)"
         }
     } else {
-        Write-Warning "'$paramName' has not yet been implemented."
+        Write-Warning "'$paramName' may be a valid cURL parameter, but it has not yet been implemented in Curl2PS. Feel free to open a feature request at https://github.com/theposhwolf/curl2ps/issues"
     }
 }
