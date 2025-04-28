@@ -17,7 +17,12 @@ Function ConvertTo-Curl2PSSplat {
                         $ht[$key] = $pg.Value[$key]
                     }
                 }
-                $splat[$paramGroup.Name] = $ht
+                try {
+                    $convertedHt = Invoke-GetItemInHashtable $ht
+                } catch {
+                    $convertedHt = $ht
+                }
+                $splat[$paramGroup.Name] = $convertedHt
             } else {
                 Write-Warning "Multiple values for parameter $($paramGroup.Name) of type '$($paramGroup.Group[0].Type)' are not supported."
             }

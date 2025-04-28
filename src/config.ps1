@@ -105,7 +105,7 @@ $script:config = @{
                 }
                 $ht
             }
-            Warning        = "If a file is present (@path in curl syntax), Get-Content should be used but is represented with a string value in the current implementation."
+            Warning        = ""
         }
         "form"     = "F"
     }
