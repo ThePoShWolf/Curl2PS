@@ -161,14 +161,14 @@ Describe 'Invoke-Curl2PS' {
         }
     }
 
-    Describe 'Form curl: curl -F "filename=@cygdrive/c/tmp/test.txt" -F ''options={"application":"2","timeout":"500","priority":"0","profiles":["win7-sp1"],"analysistype":"1","force":"true","prefetch":"0", "properties":{"application_context":{"file_name":"xyz.pdf"}}}'' -X POST https://theposhwolf.com' {
+    Describe 'Form curl: curl -F "filename=@./README.md" -F ''options={"application":"2","timeout":"500","priority":"0","profiles":["win7-sp1"],"analysistype":"1","force":"true","prefetch":"0", "properties":{"application_context":{"file_name":"xyz.pdf"}}}'' -X POST https://theposhwolf.com' {
         BeforeAll {
             $curlString = @'
-curl -F "filename=@cygdrive/c/tmp/test.txt" -F 'options={"application":"2","timeout":"500","priority":"0","profiles":["win7-sp1"],"analysistype":"1","force":"true","prefetch":"0", "properties":{"application_context":{"file_name":"xyz.pdf"}}}' -X POST https://theposhwolf.com
+curl -F "filename=@./README.md" -F 'options={"application":"2","timeout":"500","priority":"0","profiles":["win7-sp1"],"analysistype":"1","force":"true","prefetch":"0", "properties":{"application_context":{"file_name":"xyz.pdf"}}}' -X POST https://theposhwolf.com
 '@
             $ht = Invoke-Curl2PS -CurlString $curlString
             $expectedForm = @{
-                'filename' = 'Get-Item cygdrive/c/tmp/test.txt'
+                'filename' = Get-Item ./README.md
                 'options'  = @{
                     'analysistype' = '1'
                     'application'  = '2'
@@ -194,12 +194,8 @@ curl -F "filename=@cygdrive/c/tmp/test.txt" -F 'options={"application":"2","time
         It 'has the expected form data' {
             if ($PSVersionTable.PSVersion -gt [version]'7.0') {
                 $ht.Keys | Should -Contain 'Form'
-                foreach ($key in $expectedForm.Keys) {
-                    $ht['Form'].Keys | Should -Contain $key
-                    if ($expectedForm[$key] -isnot [hashtable]) {
-                        $ht['Form'][$key] | Should -Be $expectedForm[$key]
-                    }
-                }
+                $ht['Form']['filename'] | Should -BeOfType [System.IO.FileInfo]
+                $ht['Form']['filename'].FullName | Should -Be $expectedForm['filename'].FullName
                 foreach ($key in $expectedForm['options'].Keys) {
                     $ht['Form']['options'].Keys | Should -Contain $key
                     if ($expectedForm['options'][$key] -isnot [hashtable]) {
