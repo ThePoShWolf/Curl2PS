@@ -59,7 +59,7 @@ Invoke-RestMethod -Uri 'https://theposhwolf.com/api/v1/demo' -Method GET -Header
 }
 ```
 
-If a curl string has escaped double quotes in one of the values, you will need to enclose that value in single quotes and the whole command in `@''@`. For example:
+If a curl string has escaped double quotes in one of the values (`\"`), you will need to enclose that value in single quotes and the whole command in `@''@`. For example:
 
 ```
 curl -d "{\"key\": \"value\"}" https://theposhwolf.com
