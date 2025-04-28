@@ -5,45 +5,53 @@ Function ConvertTo-Curl2PSString {
             Mandatory,
             ValueFromPipeline
         )]
-        [Curl2PSParameterDefinition[]]$Parameters
+        [PSObject]$Parameter
     )
-    $uri = $Parameters | Where-Object { $_.ParameterName -eq 'Uri' } | Select-Object -First 1
-    $method = $Parameters | Where-Object { $_.ParameterName -eq 'Method' } | Select-Object -First 1
-    $baseStr = "Invoke-RestMethod -Uri '$($uri.Value)' -Method $($method.Value)"
-    foreach ($paramGroup in $parameters | Group-Object ParameterName) {
-        if ($('Uri', 'Method') -contains $paramGroup.Name) {
-            continue
-        }
-        if ($paramGroup.Count -gt 1) {
-            if ($paramGroup[0].Group[0].Type -eq 'Hashtable') {
-                $ht = @{}
-                foreach ($pg in $paramGroup.Group) {
-                    foreach ($key in $pg.Value.Keys) {
-                        $ht[$key] = $pg.Value[$key]
-                    }
+    Begin {
+        $baseStr = "Invoke-RestMethod -Uri '{URI}' -Method {METHOD}"
+        $hts = @{}
+    }
+    Process {
+        switch ($Parameter.Type) {
+            'String' {
+                if ($Parameter.ParameterName -eq 'Uri') {
+                    $baseStr = $baseStr -replace '\{URI\}', $Parameter.Value
+                } elseif ($Parameter.ParameterName -eq 'Method') {
+                    $baseStr = $baseStr -replace '\{METHOD\}', $Parameter.Value
+                } else {
+                    $baseStr += " -$($Parameter.ParameterName) '$($Parameter.Value)'"
                 }
-                $baseStr += " -$($paramGroup.Name) $(ConvertTo-HashtableString $ht -IsForm:($paramGroup[0].Group[0].ParameterName -eq 'Form'))"
-            } else {
-                Write-Warning "Multiple values for parameter $($paramGroup.Name) of type $($paramGroup.Group[0].TypeNames) are not supported."
             }
-        } elseif ($paramGroup[0].Group[0].Type -eq 'Hashtable') {
-            $baseStr += " -$($paramGroup.Name) $(ConvertTo-HashtableString $paramGroup.Group[0].Value -IsForm:($paramGroup[0].Group[0].ParameterName -eq 'Form'))"
-        } elseif ($paramGroup[0].Group[0].Type -eq 'Switch') {
-            $baseStr += " -$($paramGroup.Name):`$$($paramGroup.Group[0].Value.ToString().ToLower())"
-        } elseif ($paramGroup[0].Group[0].Type -eq 'String') {
-            $baseStr += " -$($paramGroup.Name) '$($paramGroup.Group[0].Value)'"
-        } elseif ($paramGroup[0].Group[0].Type -eq 'PSCredential') {
-            $cred = $paramGroup.Group[0].Value
-            if ($cred.GetNetworkCredential().Password.Length -gt 0) {
-                Write-Warning 'This output possibly includes a plaintext password, please treat this securely.'
-                $authStr = "`$cred = [PSCredential]::new('$($cred.UserName)', (ConvertTo-SecureString '$($cred.GetNetworkCredential().Password)' -AsPlainText -Force))`n"
-            } else {
-                "`$cred = Get-Credential -UserName '$($cred.UserName)' -Message 'Please input the password for user $($cred.UserName)'`n"
+            'Hashtable' {
+                if ($hts.Keys -notcontains $Parameter.ParameterName) {
+                    $hts[$Parameter.ParameterName] = @{}
+                }
+                foreach ($key in $Parameter.Value.Keys) {
+                    $hts[$Parameter.ParameterName][$key] = $Parameter.Value[$key]
+                }
             }
-            $baseStr = $authStr + $baseStr + " -Credential `$cred"
-        } else {
-            $baseStr += " -$($paramGroup.Name) $($paramGroup.Group[0].Value)"
+            'Switch' {
+                $baseStr += " -$($Parameter.ParameterName):`$$($Parameter.Value.ToString().ToLower())"
+            }
+            'PSCredential' {
+                $cred = $paramGroup.Group[0].Value
+                if ($cred.GetNetworkCredential().Password.Length -gt 0) {
+                    Write-Warning 'This output possibly includes a plaintext password, please treat this securely.'
+                    $authStr = "`$cred = [PSCredential]::new('$($cred.UserName)', (ConvertTo-SecureString '$($cred.GetNetworkCredential().Password)' -AsPlainText -Force))`n"
+                } else {
+                    "`$cred = Get-Credential -UserName '$($cred.UserName)' -Message 'Please input the password for user $($cred.UserName)'`n"
+                }
+                $baseStr = $authStr + $baseStr + " -Credential `$cred"
+            }
+            default {
+                $baseStr += " -$($Parameter.ParameterName) $($Parameter.Value)"
+            }
         }
     }
-    $baseStr
+    End {
+        foreach ($key in $hts.Keys) {
+            $baseStr += "-$($key) $(ConvertTo-HashtableString $hts[$key] -IsForm:($key -eq 'Form'))"
+        }
+        $baseStr
+    }
 }
