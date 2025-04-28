@@ -34,7 +34,7 @@ Function ConvertTo-Curl2PSString {
                 $baseStr += " -$($Parameter.ParameterName):`$$($Parameter.Value.ToString().ToLower())"
             }
             'PSCredential' {
-                $cred = $paramGroup.Group[0].Value
+                $cred = $Parameter.Value
                 if ($cred.GetNetworkCredential().Password.Length -gt 0) {
                     Write-Warning 'This output possibly includes a plaintext password, please treat this securely.'
                     $authStr = "`$cred = [PSCredential]::new('$($cred.UserName)', (ConvertTo-SecureString '$($cred.GetNetworkCredential().Password)' -AsPlainText -Force))`n"
