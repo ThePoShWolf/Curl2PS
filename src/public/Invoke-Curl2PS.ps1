@@ -73,10 +73,10 @@ Function Invoke-Curl2PS {
 
     if ($PSCmdlet.ParameterSetName -eq 'splat') {
         # generate a splat representation of the parameters
-        ConvertTo-Curl2PSSplat -Parameters $parameters
+        $parameters | ConvertTo-Curl2PSSplat
     } elseif ($PSCmdlet.ParameterSetName -eq 'string') {
         # generate a string representation of the Invoke-RestMethod command
-        ConvertTo-Curl2PSString -Parameters $parameters
+        $parameters | ConvertTo-Curl2PSString
     } elseif ($PSCmdlet.ParameterSetName -eq 'raw') {
         $parameters
     }
