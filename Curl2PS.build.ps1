@@ -1,5 +1,5 @@
 param (
-    [version]$Version = '0.1.2',
+    [version]$Version = '1.0.0',
     [string]$NugetApiKey,
     [string]$PreRelease,
     [switch]$Workflow
@@ -67,14 +67,6 @@ task ModuleBuild Clean, {
         }
     }
 
-    <# Copy dll dependencies
-    if (-not (Test-Path $modulePath\dependencies)) {
-        New-Item "$modulePath\dependencies" -ItemType Directory
-    }
-    foreach ($dll in (Get-ChildItem $srcPath\dependencies -Filter *.dll -File)) {
-        Copy-Item $dll.FullName -Destination $modulePath\dependencies
-    }#>
-
     # Copy the manifest
     Copy-Item "$srcPath\$moduleName.psd1" -Destination $modulePath
 
@@ -95,14 +87,13 @@ task Test ModuleBuild, {
     Import-Module $modulePath -RequiredVersion $version
     Write-Host "Invoking tests."
     $config = New-PesterConfiguration
-    $config.Run.Path = '.\Tests'
+    $config.Run.Path = $testPath
     if ($Workflow.IsPresent) {
         $config.Output.CIFormat = 'GithubActions'
         $config.TestResult.Enabled = $true
         $config.TestResult.OutputFormat = 'JUnitXml'
         Invoke-Pester -Configuration $config
-    }
-    else {
+    } else {
         Invoke-Pester -Configuration $config
     }
 }

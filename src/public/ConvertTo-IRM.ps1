@@ -1,14 +1,14 @@
 Function ConvertTo-IRM {
-    [OutputType([System.Collections.Hashtable], ParameterSetName = 'asSplat')]
-    [OutputType([System.String], ParameterSetName = 'asString')]
+    [OutputType([hashtable], ParameterSetName = 'splat')]
+    [OutputType([string], ParameterSetName = 'string')]
     [cmdletbinding(
-        DefaultParameterSetName = 'asSplat'
+        DefaultParameterSetName = 'splat'
     )]
     param (
         [Parameter(
             Position = 0
         )]
-        [CurlCommand]$CurlCommand,
+        [string]$CurlCommand,
         [Parameter(
             ParameterSetName = 'asString'
         )]
@@ -17,12 +17,12 @@ Function ConvertTo-IRM {
     )
 
     if ($CompressJSON.IsPresent) {
-        $CurlCommand.CompressJSON()
+        Write-Warning 'The CompressJSON switch is no longer valid.'
     }
 
     if ($CommandAsString.IsPresent) {
-        $CurlCommand.ToIRM()
+        Invoke-Curl2PS -CurlString $CurlCommand -AsString
     } else {
-        $CurlCommand.ToIRMSplat()
+        Invoke-Curl2PS -CurlString $CurlCommand
     }
 }

@@ -2,50 +2,172 @@
 
 [![Curl2PS](https://img.shields.io/powershellgallery/v/Curl2PS.svg?style=flat-square&label=Curl2PS "Curl2PS")](https://www.powershellgallery.com/packages/Curl2PS/)
 
-This module is a utility module to help convert curl commands to Invoke-RestMethod syntax.
+This module is a utility module to help convert cURL commands to Invoke-RestMethod syntax.
 
-This module includes classes for dealing with the curl command as well as URLs, but primarily converts curl commands to Invoke-RestMethod syntax with the ```ConvertTo-IRM``` function.
+Using `Invoke-Curl2PS` this module is designed to convert a cURL command to either a splat or the string representation for use with `Invoke-RestMethod`.
 
 To install the module:
 
 ```powershell
+# PowerShellGet
 Install-Module Curl2PS
+
+# PSResourceGet
+Install-PSResource Curl2PS
 ```
 
 Usage examples:
 
 ```powershell
 $CurlString = @"
-curl -H "X-Auth-Key: 61e5f04ca1794253ed17e6bb986c1702" -H "X-Auth-Workspace: demo.example@actualreports.com" -H "X-Auth-Signature: " -H "Content-Type: application/json" -H "Accept: application/json" -X GET https://us1.pdfgeneratorapi.com/api/v3/templates
+curl -H "X-Auth-Key: authKey" -H "X-Auth-Workspace: authWorkspace" -H "X-Auth-Signature: " -H "Content-Type: application/json" -H "Accept: application/json" -X GET https://theposhwolf.com/api/v1/demo
 "@
 
-PS> $splat = ConvertTo-IRM $CurlString
-PS> Invoke-RestMethod @splat
+$splat = Invoke-Curl2PS $CurlString
+Invoke-RestMethod @splat
 ```
 
 Or if you'd prefer the string command:
 
 ```powershell
-ConvertTo-IRM $CurlString -CommandAsString
+Invoke-Curl2PS $CurlString -AsString
+```
 
-Invoke-RestMethod -Uri https://us1.pdfgeneratorapi.com/api/v3/templates -Method GET -Headers @{
-    'X-Auth-Key' = '61e5f04ca1794253ed17e6bb986c1702'
+Output:
+
+```powershell
+Invoke-RestMethod -Uri https://theposhwolf.com/api/v1/demo -Method GET -Headers @{
+    'X-Auth-Key' = 'authKey'
     'Accept' = 'application/json'
     'X-Auth-Signature' = ''
-    'X-Auth-Workspace' = 'demo.example@actualreports.com'
+    'X-Auth-Workspace' = 'authWorkspace'
     'Content-Type' = 'application/json'
+}
+```
+
+If you are in PowerShell 7+, you would also get the `ContentType` parameter:
+
+```powershell
+Invoke-RestMethod -Uri 'https://theposhwolf.com/api/v1/demo' -Method GET -ContentType 'application/json'-Headers @{
+    'Accept' = 'application/json'
+    'X-Auth-Key' = 'authKey'
+    'X-Auth-Signature' = ''
+    'X-Auth-Workspace' = 'authWorkspace'
 }
 ```
 
 Or another example:
 
 ```powershell
-PS> ConvertTo-IRM -CurlCommand 'curl --request GET "https://ncg1in-8d1rag:5nuauzj5pkfftlz3fmyksmyhat6j35kf@api.sherpadesk.com/tickets?status=open,onhold&role=user&limit=6&format=json"  --data ""' -CommandAsString
+Invoke-Curl2PS -CurlString 'curl --request GET "https://user:password@theposhwolf.com/api/v1/demo?key=value"  --data ""' -AsString
+```
 
-Invoke-RestMethod -Uri https://api.sherpadesk.com/tickets -Method GET -Headers @{
-    'Authorization' = 'Basic bmNnMWluLThkMXJhZzo1bnVhdXpqNXBrZmZ0bHozZm15a3NteWhhdDZqMzVrZg=='
+Output:
+
+```powershell
+Invoke-RestMethod -Uri 'https://theposhwolf.com/api/v1/demo?key=value' -Method GET -Headers @{
+    'Authorization' = 'Basic dXNlcjpwYXNzd29yZA=='
 }
 ```
+
+If you are in PowerShell 7+, you would instead get instructions for passing a credential:
+
+```powershell
+$cred = [PSCredential]::new('user', (ConvertTo-SecureString 'password' -AsPlainText -Force))
+Invoke-RestMethod -Uri 'https://theposhwolf.com/api/v1/demo?key=value' -Method GET -Credential $cred -Authentication 'Basic' -Body ''
+```
+
+If a curl string has escaped double quotes in one of the values (`\"`), you will need to enclose that value in single quotes and the whole command in `@''@`. For example:
+
+```
+curl -d "{\"key\": \"value\"}" https://theposhwolf.com
+```
+
+Will need to be:
+
+```powershell
+$curlString = @'
+curl -d '{\"key\": \"value\"}' https://theposhwolf.com
+'@
+Invoke-Curl2PS $curlString
+```
+
+This is due to how PowerShell parses arguments.
+
+## Contributing
+
+Each curl parameter that Curl2PS has implemented can be found in [config.ps1](./src/config.ps1). For example, here is the configuration value for headers (`-H` / `--header`):
+
+```powershell
+@{
+    "H"        = [Curl2PSParameterTransformer]@{
+        ParameterName = "Headers"
+        Type          = "Hashtable"
+        Value         = {
+            $split = ($args[0].Split(':') -replace '\\"', '"')
+            @{
+                ($split[0].Trim()) = (($split[1..$($split.count)] -join ':').Trim())
+            }
+        }
+    }
+    "header"   = "H"
+}
+```
+
+`Invoke-Curl2PS` will search the `ParameterTransformers` hashtable looking for a parameter that matches the curl parameter name. If the value is a string, such as for `header`, then it will look up the referenced value.
+
+The value field of the transformer is represented as a script block and is executed by `Invoke-Curl2PS` using `Invoke-Command` and the value of the parameter is passed via `-ArgumentList` so it is exposed via the `$args` automatic variable. Reference `$args[0]` for the value.
+
+In this example it splits the value on the `:` and then returns it as a hashtable. The `ConvertTo-Curl2PS*` will combine multiple headers.
+
+If you need to list a minimum supported version of PowerShell, look at the user parameter transformer (`-u` / `--user`):
+
+```powershell
+@{
+    "u"        = @(
+    [Curl2PSParameterTransformer]@{
+        ParameterName = "Headers"
+        Type          = "Hashtable"
+        Value         = {
+            $encodedAuth = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($args[0]))
+            @{
+                Authorization = "Basic $encodedAuth"
+            }
+        }
+    },
+    [Curl2PSParameterTransformer]@{
+        MinimumVersion       = "7.0"
+        ParameterName        = "Credential"
+        Type                 = "PSCredential"
+        Value                = {
+            $user = $args[0]
+            if ($user -like '*:*') {
+                $split = $user.Split(':')
+                if ($split[1].Length -gt 0) {
+                    [pscredential]::new($split[0], (ConvertTo-SecureString $split[1] -AsPlainText -Force))
+                } else {
+                    [pscredential]::new($split[0], [securestring]::new())
+                }
+            } else {
+                Write-Warning "Unable to handle the user authentication value. Unrecognized format."
+            }
+        }
+        AdditionalParameters = @{
+            ParameterName = "Authentication"
+            Type          = "String"
+            Value         = {
+                "Basic"
+            }
+        }
+    }
+    )
+    "user"     = "u"
+}
+```
+
+`Invoke-Curl2PS` will find the parameter transformer with the highest supported minimum version based on the version of PowerShell that is running `Curl2PS`. If this is executed in `7.5`, for example, it will use the second transformer.
+
+The `AdditionalParameters` property adds additional parameters that need to be included if the selected transformer is used. In this example, the transformer will also create an `Authentication` parameter equal to `Basic`.
 
 ## Issues
 
@@ -53,7 +175,18 @@ If you find a curl command that doesn't properly convert, please [open an issue]
 
 PRs welcome!
 
-## Change log
+## Changelog
+
+### 1.0.0
+
+- Complete re-architecture of Curl2PS with the intention of making it more modular and easier to develop.
+  - Parameter specific conversions are stored in a dedicated [config.ps1](./src/config.ps1) file with each conversion declared as a scriptblock.
+  - `Invoke-Curl2PS` introduces a more PowerShelly approach that outputs an array of Curl2PSParameterDefinition objects that can be piped to `ConvertTo-Curl2PSSplat` and `ConvertTo-Curl2PSString`. By default `Invoke-Curl2PS` outputs as a splat.
+  - Deprecation of `ConvertTo-IRM` and removal of `Get-CurlCommand`.
+  - Deprecation and removal of the `CurlCommand` class.
+- Support for version specific parameter transformations ([#16](./../../issues/16)) through a `MinimumVersion` property in [config.ps1](./src/config.ps1).
+- Support for `-F` and `--form` for PowerShell 7+ ([#30](./../../issues/30))
+- Added more extensive Pester tests.
 
 ### 0.1.2
 
@@ -61,12 +194,12 @@ PRs welcome!
 
 ### 0.1.1
 
-- Hugely improved parameter parsing to support both types of quotes in the same curl command (#36)
+- Hugely improved parameter parsing to support both types of quotes in the same curl command ([#36](./../../issues/36))
 - Added the `-CompressJSON` parameter which attempts to compress the JSON body.
-- Added new curl parameters (#35):
+- Added new curl parameters ([#35](./../../issues/35)):
   - `-k` and `--insecure`
   - `-s` and `--silent`
-- Added support for grouped, single char parameters such as `-ksX` (#35)
+- Added support for grouped, single char parameters such as `-ksX` ([#35](./../../issues/35))
 
 ### 0.1.0 
 
