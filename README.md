@@ -2,14 +2,18 @@
 
 [![Curl2PS](https://img.shields.io/powershellgallery/v/Curl2PS.svg?style=flat-square&label=Curl2PS "Curl2PS")](https://www.powershellgallery.com/packages/Curl2PS/)
 
-This module is a utility module to help convert curl commands to Invoke-RestMethod syntax.
+This module is a utility module to help convert cURL commands to Invoke-RestMethod syntax.
 
-This module includes classes for dealing with the curl command as well as URLs, but primarily converts curl commands to Invoke-RestMethod syntax with the ```ConvertTo-IRM``` function.
+Using `Invoke-Curl2PS` this module is designed to convert a cURL command to either a splat or the string representation for use with `Invoke-RestMethod`.
 
 To install the module:
 
 ```powershell
+# PowerShellGet
 Install-Module Curl2PS
+
+# PSResourceGet
+Install-PSResource Curl2PS
 ```
 
 Usage examples:
@@ -19,15 +23,19 @@ $CurlString = @"
 curl -H "X-Auth-Key: authKey" -H "X-Auth-Workspace: authWorkspace" -H "X-Auth-Signature: " -H "Content-Type: application/json" -H "Accept: application/json" -X GET https://theposhwolf.com/api/v1/demo
 "@
 
-PS> $splat = Invoke-Curl2PS $CurlString
-PS> Invoke-RestMethod @splat
+$splat = Invoke-Curl2PS $CurlString
+Invoke-RestMethod @splat
 ```
 
 Or if you'd prefer the string command:
 
 ```powershell
 Invoke-Curl2PS $CurlString -AsString
+```
 
+Output:
+
+```powershell
 Invoke-RestMethod -Uri https://theposhwolf.com/api/v1/demo -Method GET -Headers @{
     'X-Auth-Key' = 'authKey'
     'Accept' = 'application/json'
@@ -40,8 +48,12 @@ Invoke-RestMethod -Uri https://theposhwolf.com/api/v1/demo -Method GET -Headers 
 Or another example:
 
 ```powershell
-PS> Invoke-Curl2PS -CurlString 'curl --request GET "https://user:password@theposhwolf.com/api/v1/demo?key=value"  --data ""' -AsString
+Invoke-Curl2PS -CurlString 'curl --request GET "https://user:password@theposhwolf.com/api/v1/demo?key=value"  --data ""' -AsString
+```
 
+Output:
+
+```powershell
 Invoke-RestMethod -Uri 'https://theposhwolf.com/api/v1/demo' -Method GET -Headers @{
     'Authorization' = 'Basic dXNlcjpwYXNzd29yZA=='
 }
@@ -133,10 +145,11 @@ PRs welcome!
 ### 0.2.0
 
 - Complete re-architecture of Curl2PS with the intention of making it more modular and easier to develop.
-  - Parameter specific conversions are stored in a dedicated [config.ps1](./src/config.ps1) file with a conversion declared as a scriptblock.
+  - Parameter specific conversions are stored in a dedicated [config.ps1](./src/config.ps1) file with each conversion declared as a scriptblock.
   - `Invoke-Curl2PS` introduces a more PowerShelly approach that outputs an array of Curl2PSParameterDefinition objects that can be piped to `ConvertTo-Curl2PSSplat` and `ConvertTo-Curl2PSString`. By default `Invoke-Curl2PS` outputs as a splat.
-- Support for version specific parameter transformations ([#16](./../../issues/16))
+- Support for version specific parameter transformations ([#16](./../../issues/16)) through a `MinimumVersion` property in [config.ps1](./src/config.ps1).
 - Support for `-F` and `--form` for PowerShell 7+ ([#30](./../../issues/30))
+- Added more extensive Pester tests.
 
 ### 0.1.2
 
