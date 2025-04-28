@@ -149,7 +149,7 @@ If you need to list a minimum supported version of PowerShell, look at the user 
 
 `Invoke-Curl2PS` will find the parameter transformer with the highest supported minimum version based on the version of PowerShell that is running `Curl2PS`. If this is executed in `7.5`, for example, it will use the second transformer.
 
-The `AdditionalParameters` property adds additional parameters that need to be included if the select transformer is used. In this example, the transformer will also create an `Authentication` parameter equal to `Basic`.
+The `AdditionalParameters` property adds additional parameters that need to be included if the selected transformer is used. In this example, the transformer will also create an `Authentication` parameter equal to `Basic`.
 
 ## Issues
 
