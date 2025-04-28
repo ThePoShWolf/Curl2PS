@@ -15,7 +15,7 @@ Function ConvertTo-Curl2PSSplat {
             $ht = @{}
             if ($splat.Keys -contains $Parameter.ParameterName) {
                 foreach ($key in $splat[$Parameter.ParameterName].Keys) {
-                    $ht[$key] = $splat[$Parameter.ParameterName]
+                    $ht[$key] = $splat[$Parameter.ParameterName][$key]
                 }
             }
             foreach ($key in $Parameter.Value.Keys) {
@@ -26,7 +26,7 @@ Function ConvertTo-Curl2PSSplat {
             } catch {
                 $convertedHt = $ht
             }
-            $splat[$ParameterName] = $convertedHt
+            $splat[$Parameter.ParameterName] = $convertedHt
         } else {
             $splat[$Parameter.ParameterName] = $Parameter.Value
         }
