@@ -30,9 +30,10 @@ Invoke-Curl2PS [-CurlString] <String> [-Raw] [-ProgressAction <ActionPreference>
 ## DESCRIPTION
 The \`Invoke-Curl2PS\` function takes a cURL command string as input and parses it into a PowerShell-friendly format.
 It supports three output formats:
-- A splatted hashtable for use with \`Invoke-RestMethod\` or \`Invoke-WebRequest\`.
+
+- (default) A splat hashtable for use with \`Invoke-RestMethod\` or \`Invoke-WebRequest\`.
 - A string representation of the \`Invoke-RestMethod\` command.
-- Raw parameter definitions as an array of \`Curl2PSParameterDefinition\` objects.
+- Raw parameter definitions as an array of \`Curl2PSParameterDefinition\` objects. Useful for development and debugging.
 
 This function is useful for converting cURL commands into PowerShell scripts, making it easier to work with REST APIs in PowerShell.
 
