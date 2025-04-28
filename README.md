@@ -45,6 +45,17 @@ Invoke-RestMethod -Uri https://theposhwolf.com/api/v1/demo -Method GET -Headers 
 }
 ```
 
+If you are in PowerShell 7+, you would also get the `ContentType` parameter:
+
+```powershell
+Invoke-RestMethod -Uri 'https://theposhwolf.com/api/v1/demo' -Method GET -ContentType 'application/json'-Headers @{
+    'Accept' = 'application/json'
+    'X-Auth-Key' = 'authKey'
+    'X-Auth-Signature' = ''
+    'X-Auth-Workspace' = 'authWorkspace'
+}
+```
+
 Or another example:
 
 ```powershell
