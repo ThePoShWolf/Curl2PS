@@ -5,7 +5,7 @@ Function ConvertTo-Curl2PSString {
             Mandatory,
             ValueFromPipeline
         )]
-        [PSObject]$Parameter
+        [Curl2PSParameterDefinition]$Parameter
     )
     Begin {
         $baseStr = "Invoke-RestMethod -Uri '{URI}' -Method {METHOD}"
