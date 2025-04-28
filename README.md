@@ -16,7 +16,7 @@ Usage examples:
 
 ```powershell
 $CurlString = @"
-curl -H "X-Auth-Key: 61e5f04ca1794253ed17e6bb986c1702" -H "X-Auth-Workspace: demo.example@actualreports.com" -H "X-Auth-Signature: " -H "Content-Type: application/json" -H "Accept: application/json" -X GET https://us1.pdfgeneratorapi.com/api/v3/templates
+curl -H "X-Auth-Key: authKey" -H "X-Auth-Workspace: authWorkspace" -H "X-Auth-Signature: " -H "Content-Type: application/json" -H "Accept: application/json" -X GET https://theposhwolf.com/api/v1/demo
 "@
 
 PS> $splat = Invoke-Curl2PS $CurlString
@@ -28,11 +28,11 @@ Or if you'd prefer the string command:
 ```powershell
 Invoke-Curl2PS $CurlString -AsString
 
-Invoke-RestMethod -Uri https://us1.pdfgeneratorapi.com/api/v3/templates -Method GET -Headers @{
-    'X-Auth-Key' = '61e5f04ca1794253ed17e6bb986c1702'
+Invoke-RestMethod -Uri https://theposhwolf.com/api/v1/demo -Method GET -Headers @{
+    'X-Auth-Key' = 'authKey'
     'Accept' = 'application/json'
     'X-Auth-Signature' = ''
-    'X-Auth-Workspace' = 'demo.example@actualreports.com'
+    'X-Auth-Workspace' = 'authWorkspace'
     'Content-Type' = 'application/json'
 }
 ```
@@ -40,10 +40,10 @@ Invoke-RestMethod -Uri https://us1.pdfgeneratorapi.com/api/v3/templates -Method 
 Or another example:
 
 ```powershell
-PS> Invoke-Curl2PS -CurlString 'curl --request GET "https://ncg1in-8d1rag:5nuauzj5pkfftlz3fmyksmyhat6j35kf@api.sherpadesk.com/tickets?status=open,onhold&role=user&limit=6&format=json"  --data ""' -AsString
+PS> Invoke-Curl2PS -CurlString 'curl --request GET "https://user:password@theposhwolf.com/api/v1/demo?key=value"  --data ""' -AsString
 
-Invoke-RestMethod -Uri https://api.sherpadesk.com/tickets -Method GET -Headers @{
-    'Authorization' = 'Basic bmNnMWluLThkMXJhZzo1bnVhdXpqNXBrZmZ0bHozZm15a3NteWhhdDZqMzVrZg=='
+Invoke-RestMethod -Uri 'https://theposhwolf.com/api/v1/demo' -Method GET -Headers @{
+    'Authorization' = 'Basic dXNlcjpwYXNzd29yZA=='
 }
 ```
 
