@@ -159,11 +159,13 @@ PRs welcome!
 
 ## Changelog
 
-### 0.2.0
+### 1.0.0
 
 - Complete re-architecture of Curl2PS with the intention of making it more modular and easier to develop.
   - Parameter specific conversions are stored in a dedicated [config.ps1](./src/config.ps1) file with each conversion declared as a scriptblock.
   - `Invoke-Curl2PS` introduces a more PowerShelly approach that outputs an array of Curl2PSParameterDefinition objects that can be piped to `ConvertTo-Curl2PSSplat` and `ConvertTo-Curl2PSString`. By default `Invoke-Curl2PS` outputs as a splat.
+  - Deprecation of `ConvertTo-IRM` and removal of `Get-CurlCommand`.
+  - Deprecation and removal of the `CurlCommand` class.
 - Support for version specific parameter transformations ([#16](./../../issues/16)) through a `MinimumVersion` property in [config.ps1](./src/config.ps1).
 - Support for `-F` and `--form` for PowerShell 7+ ([#30](./../../issues/30))
 - Added more extensive Pester tests.
