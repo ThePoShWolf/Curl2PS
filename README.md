@@ -54,7 +54,7 @@ Invoke-Curl2PS -CurlString 'curl --request GET "https://user:password@theposhwol
 Output:
 
 ```powershell
-Invoke-RestMethod -Uri 'https://theposhwolf.com/api/v1/demo' -Method GET -Headers @{
+Invoke-RestMethod -Uri 'https://theposhwolf.com/api/v1/demo?key=value' -Method GET -Headers @{
     'Authorization' = 'Basic dXNlcjpwYXNzd29yZA=='
 }
 ```
