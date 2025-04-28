@@ -59,6 +59,23 @@ Invoke-RestMethod -Uri 'https://theposhwolf.com/api/v1/demo' -Method GET -Header
 }
 ```
 
+If a curl string has escaped double quotes in one of the values, you will need to enclose that value in single quotes and the whole command in `@''@`. For example:
+
+```
+curl -d "{\"key\": \"value\"}" https://theposhwolf.com
+```
+
+Will need to be:
+
+```powershell
+$curlString = @'
+curl -d '{\"key\": \"value\"}' https://theposhwolf.com
+'@
+Invoke-Curl2PS $curlString
+```
+
+This is due to how PowerShell parses arguments.
+
 ## Contributing
 
 Each curl parameter that Curl2PS has implemented can be found in [config.ps1](./src/config.ps1). For example, here is the configuration value for headers (`-H` / `--header`):
