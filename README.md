@@ -70,6 +70,13 @@ Invoke-RestMethod -Uri 'https://theposhwolf.com/api/v1/demo?key=value' -Method G
 }
 ```
 
+If you are in PowerShell 7+, you would instead get instructions for passing a credential:
+
+```powershell
+$cred = [PSCredential]::new('user', (ConvertTo-SecureString 'password' -AsPlainText -Force))
+Invoke-RestMethod -Uri 'https://theposhwolf.com/api/v1/demo?key=value' -Method GET -Credential $cred -Authentication 'Basic' -Body ''
+```
+
 If a curl string has escaped double quotes in one of the values (`\"`), you will need to enclose that value in single quotes and the whole command in `@''@`. For example:
 
 ```
