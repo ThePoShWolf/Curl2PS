@@ -1,5 +1,5 @@
 param (
-    [version]$Version = '1.0.0',
+    [version]$Version = '1.0.1',
     [string]$NugetApiKey,
     [string]$PreRelease,
     [switch]$Workflow
