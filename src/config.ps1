@@ -30,6 +30,36 @@ $script:config = @{
             }
         }
         "data"     = "d"
+        "data-raw" = [Curl2PSParameterTransformer]@{
+            ParameterName = "Body"
+            Description   = "Raw data is passed as a string to the Body parameter."
+            Type          = "String"
+            Value         = {
+                # Replace escaped double quotes (\") with standard double quotes (")
+                $rawData = $args[0].Trim() -replace '\\"', '"'
+                # Remove PowerShell-specific escaping for `$` (e.g., `\$ becomes $)
+                $rawData = $rawData -replace '`\$', '$'
+                # Escape `$` for PowerShell to prevent it from being interpreted as a variable
+                # (e.g., $ becomes `$ to ensure it is treated as a literal character)
+                $rawData = $rawData -replace '\$', '`$'
+
+                # Replace backslashes (\) with single quotes (') since you can have filter params like the following in example msgraph: $filter=startsWith(city,\'P\')
+                $rawData = $rawData -replace '\\', "'"
+                $startIndex = $rawData.IndexOf('{')
+                $endIndex = $rawData.LastIndexOf('}')
+                if ($startIndex -ge 0 -and $endIndex -gt $startIndex) {
+                    <#
+                    Extract everything between the first '{' and the last '}' due to the copy as cURL (bash) in at least Chrome sometimes adds a starting $ like this example:
+                    --data-raw $'{"requests":[{"id":"REMOVED","method":"GET","url":"/users?$select=id,displayName,userType,onPremisesSyncEnabled,companyName,creationType&$top=40&$filter=startsWith(city,\'P\')&$orderby=displayName asc&$count=true","headers":{"ConsistencyLevel":"eventual","x-ms-command-name":"UserManagement - ListUsers","x-ms-client-request-id":"REMOVED","client-request-id":"REMOVED","x-ms-client-session-id":"REMOVED"}}]}'
+                    So to ensure we get the correct JSON, we need to extract everything between the first '{' and the last '}'.
+                    This is a bit of a hack, but it works for the things i tested. If you have a better solution, please let me know.
+                    #>
+                    $rawData = $rawData.Substring($startIndex, $endIndex - $startIndex + 1)
+                }
+
+                $rawData
+            }
+        }
         "url"      = [Curl2PSParameterTransformer]@{
             ParameterName = "Uri"
             Description   = "Uri is simply a string."

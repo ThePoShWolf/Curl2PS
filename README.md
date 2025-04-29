@@ -177,6 +177,10 @@ PRs welcome!
 
 ## Changelog
 
+### 1.0.1
+
+- Add support for --data-raw (thank you [@Mynster9361](https://github.com/Mynster9361)!)
+
 ### 1.0.0
 
 - Complete re-architecture of Curl2PS with the intention of making it more modular and easier to develop.
